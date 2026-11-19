@@ -824,7 +824,8 @@ Títulos usam **bold** (700) no dark para compensar o efeito de "halo" do texto 
 ### 10.7 Implementação (React Native + Expo)
 
 ```ts
-// src/shared/theme/dark/index.ts
+// Referência de design. Implementação: src/shared/theme/colors/index.ts
+// (status renomeados para inRange / offTarget / danger / context; gradientes em gradientsByScheme)
 export const darkColors = {
   bg: '#051424', header: 'rgba(5,20,36,0.85)', tabBar: 'rgba(11,19,32,0.90)',
   card: '#0D1C2D', cardBorder: '#1E334A', cardGradient: ['#0D1C2D', '#122131'],
@@ -1152,13 +1153,11 @@ src/
 │   │   ├── useCycleDay/index.ts
 │   │   └── useToast/index.ts
 │   ├── theme/
-│   │   ├── index.ts                               # ThemeProvider + tipo Theme
-│   │   ├── light/index.ts
-│   │   ├── dark/index.ts
-│   │   ├── typography/index.ts
-│   │   ├── spacing/index.ts
-│   │   ├── radius/index.ts
-│   │   └── elevation/index.ts
+│   │   ├── index.tsx                              # ThemeProvider (aplica as variáveis CSS) + tipo Theme
+│   │   ├── colors/index.ts                        # lightColors / darkColors / gradientes (fonte única)
+│   │   ├── cssVars/index.ts                       # cores → variáveis CSS e classes do Tailwind
+│   │   ├── tokens/index.ts                        # espaçamento, raios, tipografia, famílias
+│   │   └── typography/index.ts                    # fontes carregadas pelo expo-font
 │   ├── utils/
 │   │   ├── glucose/index.ts                       # classifyReading, getTargetForContext
 │   │   ├── cycle/index.ts                         # getCycleDay, getTodayMoments
