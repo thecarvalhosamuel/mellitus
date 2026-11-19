@@ -9,9 +9,9 @@ import {
   type ThemeColors,
   type ThemeGradients,
 } from './colors';
-import { toCssVariables } from './cssVars';
+import type { Appearance } from '@/shared/types/settings';
 
-export type Appearance = 'system' | 'light' | 'dark';
+import { toCssVariables } from './cssVars';
 
 export type Theme = {
   scheme: ColorScheme;
