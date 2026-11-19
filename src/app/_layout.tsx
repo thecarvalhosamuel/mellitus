@@ -1,8 +1,13 @@
+import '../global.css';
+
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { useTheme } from '@/shared/hooks/useTheme';
+import { ThemeProvider } from '@/shared/theme';
 import { fontAssets } from '@/shared/theme/typography';
 
 // Mantém a splash até a fonte carregar. Nas próximas etapas, o banco,
@@ -19,5 +24,20 @@ export default function RootLayout() {
 
   if (!ready) return null;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <ThemeProvider>
+      <RootStack />
+    </ThemeProvider>
+  );
+}
+
+function RootStack() {
+  const { scheme, colors } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />
+    </>
+  );
 }
