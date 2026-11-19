@@ -1,35 +1,29 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
-import { fontFamily } from '@/shared/theme/typography';
-
-// Placeholder da etapa 1: as seções do Início entram nas etapas 7 e 9.
-// Cores e estilos definitivos chegam com o tema (etapa 2, NativeWind).
+// Placeholder: as seções do Início entram nas etapas 7 e 9.
+// Serve para conferir o tema: tudo aqui usa só classes semânticas.
 export function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Mellitus</Text>
-      <Text style={styles.subtitle}>Seu acompanhamento glicêmico começa aqui.</Text>
+    <View className="flex-1 items-center justify-center gap-md bg-bg px-margin">
+      <Text className="font-bold text-headline-lg text-text-strong">Mellitus</Text>
+      <Text className="text-center font-regular text-body-md text-text-secondary">
+        Seu acompanhamento glicêmico começa aqui.
+      </Text>
+
+      <View className="w-full gap-sm rounded-card border border-card-border bg-card p-md">
+        <Text className="font-semibold text-label-md text-text-muted">ÚLTIMA LEITURA</Text>
+        <View className="flex-row items-end gap-xs">
+          <Text
+            className="font-bold text-display-numeric text-status-in-range-value"
+            style={{ fontVariant: ['tabular-nums'] }}>
+            104
+          </Text>
+          <Text className="mb-xs font-medium text-body-md text-text-muted">mg/dL</Text>
+        </View>
+        <View className="self-start rounded-full border border-status-in-range-border bg-status-in-range-bg px-sm py-xs">
+          <Text className="font-bold text-label-sm text-status-in-range-fg">● NO ALVO</Text>
+        </View>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    padding: 16,
-  },
-  title: {
-    fontFamily: fontFamily.bold,
-    fontSize: 26,
-    lineHeight: 32,
-  },
-  subtitle: {
-    fontFamily: fontFamily.regular,
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-});
