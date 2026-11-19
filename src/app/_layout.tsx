@@ -1,5 +1,23 @@
-import { Stack } from "expo-router";
+import { useFonts } from 'expo-font';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+
+import { fontAssets } from '@/shared/theme/typography';
+
+// Mantém a splash até a fonte carregar. Nas próximas etapas, o banco,
+// as migrations e as settings entram nesta mesma sequência de init.
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  return <Stack />;
+  const [fontsLoaded, fontError] = useFonts(fontAssets);
+  const ready = fontsLoaded || fontError !== null;
+
+  useEffect(() => {
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  if (!ready) return null;
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
