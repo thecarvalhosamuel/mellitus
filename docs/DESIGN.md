@@ -73,12 +73,12 @@ Os status usam **3 famílias de cor, com o mesmo significado no tema claro e no 
 
 | Status (`GlucoseStatus`) | Quando | Rótulo | Família | Cor base | Fundo do badge | Texto do badge | Ícone |
 |---|---|---|---|---|---|---|---|
-| `no-alvo` | Dentro da faixa do contexto | No Alvo | Verde | `#10B981` | `#ECFDF5` | `#047857` | Dot 6 px |
-| `atencao` | Abaixo do mínimo e ≥ alerta de hipo | Abaixo da Meta | Âmbar | `#F59E0B` | `#FFFBEB` | `#B45309` | ↓ |
-| `alto` | Acima do máximo e ≤ alerta de hiper | Acima da Meta | Âmbar | `#F59E0B` | `#FFFBEB` | `#B45309` | ↑ |
-| `hipo` | < alerta de hipo (padrão 70) e ≥ 54 | Hipo Leve | Crimson | `#E11D48` | `#FFF1F2` | `#BE123C` | ↓ |
-| `hipo-critico` | < 54 | Hipo Severa | Crimson + halo | `#E11D48` | `#FFF1F2` | `#BE123C` | ⇊ |
-| `critico` | > alerta de hiper (padrão 200) | Hiper Severa | Crimson + halo | `#E11D48` | `#FFF1F2` | `#BE123C` | ⇈ |
+| `in-range` | Dentro da faixa do contexto | No Alvo | Verde | `#10B981` | `#ECFDF5` | `#047857` | Dot 6 px |
+| `below-target` | Abaixo do mínimo e ≥ alerta de hipo | Abaixo da Meta | Âmbar | `#F59E0B` | `#FFFBEB` | `#B45309` | ↓ |
+| `above-target` | Acima do máximo e ≤ alerta de hiper | Acima da Meta | Âmbar | `#F59E0B` | `#FFFBEB` | `#B45309` | ↑ |
+| `hypo` | < alerta de hipo (padrão 70) e ≥ 54 | Hipo Leve | Crimson | `#E11D48` | `#FFF1F2` | `#BE123C` | ↓ |
+| `severe-hypo` | < 54 | Hipo Severa | Crimson + halo | `#E11D48` | `#FFF1F2` | `#BE123C` | ⇊ |
+| `severe-hyper` | > alerta de hiper (padrão 200) | Hiper Severa | Crimson + halo | `#E11D48` | `#FFF1F2` | `#BE123C` | ⇈ |
 | Contexto (Jejum, Pós-prandial…) | — | — | Neutro | slate | `#F1F5F9` | `#475569` | — (uppercase) |
 
 **Valor numérico** colorido pelo status sobre fundo branco: normal `on-surface`; âmbar `#B45309` (5,0:1); crimson `#BE123C` (6,3:1).
@@ -180,7 +180,7 @@ React Native: usar `shadowColor/shadowOpacity/shadowRadius/shadowOffset` (iOS) +
 
 ### 3.2 Rotas e pastas
 
-Para a organização completa do código (pastas em inglês, `nomeComponente/index.tsx`, `shared`), veja a **seção 12**.
+Para a organização completa do código (pastas em inglês, `nomeComponente/index.tsx`, `src/components`), veja a **seção 12**.
 
 | Tela | Rota | Arquivo de rota |
 |---|---|---|
@@ -320,11 +320,11 @@ Ordem vertical (gap 16):
 
 ### 5.2 Histórico e Registros
 
-1. **Gestão de Dados Clínicos** (fundo `surface-container-low`): ícone `smartphone`, "Dados salvos neste aparelho" + "Último backup: há 3 dias" (ou "Nenhum backup ainda" em âmbar), badge "● 42 leituras". *(MVP: sem nuvem nem Bluetooth — ver seção 13.)*
+1. **Gestão de Dados Clínicos** (fundo `surface-container-low`): ícone `smartphone`, "Dados salvos neste aparelho", badge "● 42 leituras". *(MVP: sem nuvem nem Bluetooth — ver seção 13.)*
    - Grid 2 col: **Exportar** (primary, `file_download` + `arrow_drop_down`) e **Importar** (branco, `file_upload`).
    - Dropdown "FORMATOS OFICIAIS": "PDF Médico (Laudo de Consulta) — Com curva, médias e TIR" (`picture_as_pdf`); "Planilha XLSX (Excel) — Tabela tabular compatível com prontuários" (`table_view`).
    - Importar aceita `.xlsx`, `.csv` (`expo-document-picker`).
-   - Terceira opção no menu: **"Backup completo (.json)"** — exporta todos os dados do app para restaurar depois (seção 13.6).
+   - *Futuro:* terceira opção no menu **"Backup completo (.json)"** (seção 13.6). Fora do MVP por enquanto.
 2. **Controles**: seletor de mês ("📅 Outubro 2024 ▾" → bottom sheet com Outubro 2024 (Mês Atual) ✓ / Setembro 2024 · 88 registros / Agosto 2024 · 92 registros) e ordenação ("↓ Mais Recente" ⇄ "↑ Mais Antigo").
 3. **Filtros por contexto**: Todos (42) · Jejum · Pré-prandial · Pós-prandial · Noturno.
 4. **Lista agrupada por dia** (`SectionList`): cabeçalho com dot (primary para hoje, `outline-variant` para demais), "Hoje, 24 de Outubro" + contagem "1 registro" / "3 registros"; Record Rows.
@@ -376,7 +376,7 @@ Formulário em cards numerados:
 - *Noturno & Ao Deitar* (`bedtime`, "Repouso"): Base segura 90 · Teto noturno 130.
 - *Limites de Urgência & Alarmes Auditivos* (`notifications_active`):
   - Alarme Crítico de Hipoglicemia (card de alerta crítico crimson, `crisis_alert`): "Alerta sonoro, com bypass do Não Perturbe quando o sistema permitir", valor < 70.
-  - Limite de Hiperglicemia Severa (`trending_up`, crimson): "Notificação de checagem de cetonas", valor > 200.
+  - Limite de Hiperglicemia Severa (`trending_up`, crimson): valor > 200. *(Futuro: "Notificação de checagem de cetonas", depende de validação clínica.)*
 
 **③ Frequência e Dias de Medição** (badge "Ciclos Flexíveis") — "Periodicidade e Alternância de Dias"
 - Grid 2×2 de opções: Dia sim, Dia não (3x no dia ativo e descanso no seguinte) · **Ciclo Alternado** (3x vs 1x — selecionado) · Espaçado (a cada 72h, 1x em jejum) · Personalizado (definir por dias da semana).
@@ -422,21 +422,35 @@ Banner "Rotina e Alertas" (ícone `notifications_active` em círculo `secondary-
 
 **Passo 3 de 3 — Exportação & Conectividade**
 - Relatórios Clínicos: no MVP viram **lembretes de exportação** — "Planilha semanal (toda segunda 08:00)" e "Laudo mensal (PDF)". A notificação local abre o app, que gera o arquivo no aparelho e abre a folha de compartilhamento (WhatsApp, e-mail…). Pill toggle "✓ Ativo" / "Inativo".
-- **Backup dos dados**: "Exportar backup (.json)" · "Restaurar backup" · data do último backup · lembrete mensal de backup (switch).
+- *Futuro:* **Backup dos dados**: "Exportar backup (.json)" · "Restaurar backup" · data do último backup · lembrete mensal (seção 13.6). Fora do MVP por enquanto.
 - ~~INTEGRAÇÕES DE SAÚDE~~ (Apple Health / Health Connect): **fora do MVP** — exibir card desabilitado "Em breve" ou ocultar.
 
-Card "Salvo neste aparelho" (`verified`, texto: "Suas configurações entram em vigor imediatamente. Faça backups periódicos para não perder seus dados.") no lugar de "Sincronização em Tempo Real" + CTA "Salvar Preferências de Frequência" com estados loading → sucesso → toast "Preferências salvas com sucesso!".
+Card "Salvo neste aparelho" (`verified`, texto: "Suas configurações entram em vigor imediatamente.") no lugar de "Sincronização em Tempo Real" + CTA "Salvar Preferências de Frequência" com estados loading → sucesso → toast "Preferências salvas com sucesso!".
 
 ---
 
 ## 6. Modelo de Dados
 
 ```ts
+// Identificadores sempre em inglês; rótulos pt-BR ficam em constants/readingContexts
 type MealContext =
-  | 'jejum' | 'pre-prandial' | 'pos-prandial-1h' | 'pos-prandial-2h'
-  | 'pre-jantar' | 'pos-jantar' | 'ao-deitar' | 'madrugada' | 'outro';
+  | 'fasting'        // Jejum
+  | 'pre-meal'       // Pré-refeição
+  | 'post-meal-1h'   // 1h pós-refeição
+  | 'post-meal-2h'   // 2h pós-refeição
+  | 'pre-dinner'     // Pré-jantar
+  | 'post-dinner'    // Pós-jantar
+  | 'bedtime'        // Ao deitar
+  | 'overnight'      // Madrugada
+  | 'other';         // Outro
 
-type GlucoseStatus = 'hipo-critico' | 'hipo' | 'no-alvo' | 'atencao' | 'alto' | 'critico';
+type GlucoseStatus =
+  | 'severe-hypo'    // Hipo Severa
+  | 'hypo'           // Hipo Leve
+  | 'below-target'   // Abaixo da Meta
+  | 'in-range'       // No Alvo
+  | 'above-target'   // Acima da Meta
+  | 'severe-hyper';  // Hiper Severa
 
 interface GlucoseReading {
   id: string;
@@ -459,25 +473,31 @@ interface TargetRange { min?: number; max?: number; }
 interface ClinicalPattern {
   id: string;
   name: string;                         // "Diabetes Comum", "Plano Dr. Roberto..."
-  kind: 'comum' | 'gestacional' | 'custom';
-  condition?: 'dm-estrito' | 'pre-diabetes' | 'atleta' | 'hipo-reativa' | 'gestacional' | 'outro';
+  kind: 'standard' | 'gestational' | 'custom';   // Diabetes Comum | Gestacional | Personalizado
+  condition?: 'strict-dm' | 'prediabetes' | 'athlete' | 'reactive-hypo' | 'gestational' | 'other';
   fasting: TargetRange;                 // 80–130
   postprandial: TargetRange & { windowHours: 1 | 2 };
   bedtime: TargetRange;                 // 100–140
   alerts: { hypo: number; hyper: number; hypoBypassDND: boolean };
   medicalTeam?: { name: string; crm: string; specialty: string; notes?: string; attachments?: string[] };
-  status: 'ativo' | 'rascunho' | 'inativo';
+  status: 'active' | 'draft' | 'inactive';       // Ativo | Rascunho | Inativo
   reviewedAt?: string;
 }
 
-type FrequencyMode = '3x' | '1x' | 'alternado' | 'dia-sim-dia-nao' | 'espacado-72h' | 'personalizado';
+type FrequencyMode =
+  | '3x'               // 3x ao dia
+  | '1x'               // 1x ao dia
+  | 'alternating'      // Ciclo alternado (Dia A 3x / Dia B 1x)
+  | 'every-other-day'  // Dia sim, dia não
+  | 'every-72h'        // Espaçado a cada 72h
+  | 'custom';          // Personalizado (quantidade e momentos)
 
 interface FrequencySchedule {
   mode: FrequencyMode;
   dayA?: { label: string; moments: { context: MealContext; time: string }[] }; // 3x
   dayB?: { label: string; moments: { context: MealContext; time: string }[] }; // 1x
   cycleStart: string;            // data em que começa com Dia A
-  customCount?: 2 | 4 | 6 | 'livre';
+  customCount?: 2 | 4 | 6 | 'free';
   customMoments?: MealContext[];
 }
 
@@ -491,20 +511,23 @@ interface ReminderSettings {
 
 interface ExportSettings {
   weeklyXlsx: { enabled: boolean; weekday: 1; time: '08:00' };
-  monthlyAgpPdf: { enabled: boolean; channel: 'whatsapp' };
-  integrations: { appleHealth: boolean; healthConnect: boolean };
+  monthlyAgpPdf: { enabled: boolean };   // MVP: gera o arquivo e abre a folha de compartilhamento
+  // Futuro (fora do MVP):
+  // channel: 'whatsapp';                                      → envio automático do laudo (exige backend)
+  // integrations: { appleHealth: boolean; healthConnect: boolean }; → Fase 2 (na UI do MVP: "Em breve")
 }
 ```
 
 ### 6.1 Regras de negócio
 
 - **Classificação de status** de uma leitura: comparar com a faixa do padrão ativo para o contexto (`fasting`, `postprandial`, `bedtime`).
-  - `< 54` → `hipo-critico` (Hipo Severa).
-  - `< alerts.hypo` → `hipo` (Hipo Leve).
-  - Abaixo do mínimo e ≥ `alerts.hypo` → `atencao` (Abaixo da Meta).
-  - Dentro da faixa → `no-alvo`.
-  - Acima do máximo e ≤ `alerts.hyper` → `alto` (Acima da Meta).
-  - `> alerts.hyper` → `critico` (Hiper Severa; dispara notificação de checagem de cetonas).
+  - `< 54` → `severe-hypo` (Hipo Severa).
+  - `< alerts.hypo` → `hypo` (Hipo Leve).
+  - Abaixo do mínimo e ≥ `alerts.hypo` → `below-target` (Abaixo da Meta).
+  - Dentro da faixa → `in-range` (No Alvo).
+  - Acima do máximo e ≤ `alerts.hyper` → `above-target` (Acima da Meta).
+  - `> alerts.hyper` → `severe-hyper` (Hiper Severa).
+  - *Futuro:* notificação de checagem de cetonas ao registrar `severe-hyper` (orientação clínica, exige validação).
   - Cores, ícones e rótulos de cada status: tabela 2.2.
 - **Fonte única das metas:** toda meta exibida (badge do hero tile, "Meta: 80–130" no histórico, faixa do gráfico, barras) vem do **padrão ativo**, ou da meta gravada na própria leitura no caso de leituras antigas. Nenhum valor de meta fica fixo na interface.
 - **Ciclo alternado**: `dia = diferençaEmDias(hoje, cycleStart) % 2 === 0 ? 'A' : 'B'`. Dia A: 3 medições; Dia B: 1 (jejum).
@@ -550,8 +573,24 @@ npx expo install expo-router expo-font @expo-google-fonts/plus-jakarta-sans \
 npm i @gorhom/bottom-sheet d3-shape date-fns
 # Ícones Material Symbols: @expo/vector-icons (MaterialIcons/MaterialCommunityIcons)
 # ou react-native-material-symbols para fidelidade total
-# Estilo: NativeWind (Tailwind para RN) reaproveita os nomes de tokens das telas
+# Estilo: NativeWind (Tailwind para RN) — instalar seguindo o guia oficial da versão
+# compatível com o SDK do Expo (nativewind + tailwindcss + babel/metro config)
 ```
+
+**Estilização: NativeWind + `useTheme()` (abordagem mesclada)**
+
+Os tokens têm **uma única fonte da verdade** em `src/shared/theme` (TS). Dela saem as duas formas de consumo:
+
+| Situação | Como estilizar |
+|---|---|
+| Layout, espaçamento, cores, raios e tipografia de `View`/`Text`/`Pressable` (a maioria dos casos) | **NativeWind** com classes semânticas: `bg-card`, `border-card-border`, `text-muted`, `bg-status-in-range-bg`, `rounded-card`, `p-md`, `font-display-numeric` |
+| Lugares que não aceitam `className`: SVG (`react-native-svg`), `expo-linear-gradient`, `expo-blur` (`tint`), React Navigation, `StatusBar`, valores animados do Reanimated | **`const { colors } = useTheme()`** com as mesmas chaves semânticas |
+
+- **Cores como variáveis CSS:** `global.css` define as variáveis de cada tema (claro em `:root`, escuro em `.dark`), e o `tailwind.config` mapeia as classes semânticas para essas variáveis (`card: 'rgb(var(--color-card) / <alpha-value>)'`). Assim a troca de tema não precisa de prefixo `dark:` em cada classe.
+- **Proibido:** hex direto e cores da paleta padrão do Tailwind (`bg-teal-600`, `text-red-500`). Só classes semânticas ou `useTheme()`.
+- **Tema:** o `ThemeProvider` lê `settings.appearance` e aplica o esquema no NativeWind (`colorScheme.set('system' | 'light' | 'dark')`). O `useTheme()` devolve as cores do esquema efetivo.
+- Números: classe utilitária `tabular-nums` (ou `fontVariant: ['tabular-nums']` quando via `style`).
+- `styles.ts` deixa de ser `StyleSheet` padrão: serve para **mapas de variantes** de classes (ex.: `buttonVariants = { primary: 'bg-primary', ghost: 'bg-transparent' }`) quando o componente tem muitas variações.
 
 **theme.ts (resumo)**
 
@@ -807,7 +846,8 @@ export const darkColors = {
 ```
 
 - Criar `lightColors` com **as mesmas chaves semânticas** (`bg`, `card`, `inset`, `control`…) a partir da seção 2, para que os componentes nunca usem hex direto.
-- `ThemeProvider` com `useColorScheme()` + preferência salva na tabela `settings` do SQLite (chave `appearance`): `'system' | 'light' | 'dark'`.
+- `lightColors` e `darkColors` geram as variáveis CSS do NativeWind (`:root` e `.dark` em `global.css`) e alimentam o `useTheme()`. Ver "Estilização" na seção 9.
+- `ThemeProvider` com o `colorScheme` do NativeWind + preferência salva na tabela `settings` do SQLite (chave `appearance`): `'system' | 'light' | 'dark'`.
 - `app.json`: `"userInterfaceStyle": "automatic"`. Ajustar `expo-status-bar` (`style="light"` no dark) e `expo-navigation-bar` (Android).
 - Gradientes com `expo-linear-gradient`; blur do header/tab bar com `expo-blur` (`tint="dark"`).
 - No Android, `elevation` gera sombra cinza pouco visível no dark: confiar em **borda + diferença tonal**.
@@ -856,23 +896,25 @@ As telas de referência tinham contradições entre si. Abaixo, o que foi decidi
   ```
   lastReadingCard/
     index.tsx        # JSX + composição (obrigatório)
-    styles.ts        # StyleSheet / estilos derivados do tema
+    styles.ts        # mapas de variantes de classes NativeWind (opcional)
     types.ts         # props e tipos locais
     useLastReadingCard.ts  # lógica (estado, derivação de dados)
     components/      # subcomponentes usados SÓ por este componente
   ```
 
 - **Exceção do Expo Router:** `_layout.tsx` precisa manter esse nome. Os arquivos de rota ficam em `pasta/index.tsx` e só importam a tela correspondente de `src/screens`.
-- **Imports por alias:** `@/shared/...`, `@/screens/...`, `@/services/...` (configurar `tsconfig.json` → `paths`).
+- **Imports por alias:** `@/components/...`, `@/shared/...`, `@/screens/...`, `@/services/...` (configurar `tsconfig.json` → `paths`).
 
-### 12.2 Quando um componente vai para `shared`
+### 12.2 Quando um componente vai para `src/components`
 
 | Situação | Onde fica |
 |---|---|
-| Usado em **2 ou mais telas** ou primitivo visual do design system (botão, card, badge, input) | `src/shared/components/...` |
+| Usado em **2 ou mais telas** ou primitivo visual do design system (botão, card, badge, input) | `src/components/...` (`layout/`, `ui/`, `glucose/`) |
 | Usado em uma única tela | `src/screens/<tela>/components/...` |
 | Usado só dentro de outro componente | `<componente>/components/...` |
-| Começou local e passou a ser usado em outra tela | **Promover** para `shared` (mover a pasta, não duplicar) |
+| Começou local e passou a ser usado em outra tela | **Promover** para `src/components` (mover a pasta, não duplicar) |
+
+`src/shared/` fica só com código que não é componente: `hooks`, `theme`, `utils`, `types` e `constants`.
 
 ### 12.3 Regras de tamanho e responsabilidade
 
@@ -881,7 +923,7 @@ As telas de referência tinham contradições entre si. Abaixo, o que foi decidi
 - **Limite indicativo de ~150 linhas por `index.tsx`.** Passou disso, extrair subcomponentes ou mover lógica para um hook `useNomeComponente.ts`.
 - **Lógica fora do JSX.** Classificação de status, cálculo de TIR, dia do ciclo e formatação ficam em `shared/utils` ou em hooks, nunca inline nos componentes.
 - **Componentes de UI não acessam stores.** Recebem dados por props. Só telas, seções e hooks leem estado global.
-- **Sem hex direto nos componentes.** Usar sempre `useTheme()` com as chaves semânticas (`colors.card`, `colors.status.low.fg`…), para claro e escuro funcionarem automaticamente.
+- **Sem hex direto nos componentes.** Estilizar com classes semânticas do NativeWind (`bg-card`, `text-muted`…). Onde `className` não se aplica (SVG, gradiente, blur, navegação), usar `useTheme()` com as mesmas chaves (`colors.card`, `colors.status.danger.fg`…). Claro e escuro funcionam automaticamente.
 - **Não separar sem motivo.** Um trecho de 10 linhas que não se repete e não tem lógica pode ficar no próprio componente. O objetivo é legibilidade, não fragmentação.
 
 ### 12.4 Árvore completa
@@ -1043,66 +1085,67 @@ src/
 │           ├── syncInfoCard/index.tsx
 │           └── saveSettingsButton/index.tsx
 │
+├── components/                                    # componentes reutilizáveis (2+ telas) e primitivos de UI
+│   ├── layout/
+│   │   ├── appHeader/index.tsx                # logo + título + subtítulo + avatar
+│   │   ├── tabBar/index.tsx
+│   │   ├── screenContainer/index.tsx          # safe area + paddings do header/tab bar
+│   │   └── sectionHeader/index.tsx            # ícone + título + ação opcional
+│   ├── ui/
+│   │   ├── button/index.tsx                   # variants: primary | secondary | outlined | ghost | danger
+│   │   ├── gradientButton/index.tsx           # CTA com gradiente (dark)
+│   │   ├── iconButton/index.tsx
+│   │   ├── backButton/index.tsx
+│   │   ├── card/index.tsx                     # variants: default | highlight | recessed
+│   │   ├── subBlock/index.tsx
+│   │   ├── badge/index.tsx                    # pill/tag genérico
+│   │   ├── filterChips/index.tsx              # lista horizontal rolável
+│   │   ├── stepBadge/index.tsx                # círculo numerado ①②③
+│   │   ├── stepHeader/index.tsx               # stepBadge + título + badge
+│   │   ├── textField/index.tsx
+│   │   ├── numericField/index.tsx             # valor + unidade (alvos, limites)
+│   │   ├── selectField/index.tsx              # abre bottomSheet de opções
+│   │   ├── textAreaField/index.tsx
+│   │   ├── segmentedControl/index.tsx
+│   │   ├── selectableCard/index.tsx           # base de radio cards e opções
+│   │   ├── optionGrid/index.tsx               # grid de opções (single/multi)
+│   │   ├── switch/index.tsx
+│   │   ├── toggleRow/index.tsx                # título + descrição + switch
+│   │   ├── stepper/index.tsx
+│   │   ├── bottomSheet/index.tsx
+│   │   ├── toast/index.tsx
+│   │   ├── infoBanner/index.tsx
+│   │   ├── emptyState/index.tsx
+│   │   ├── avatar/index.tsx
+│   │   ├── icon/index.tsx                     # wrapper Material Symbols
+│   │   └── divider/index.tsx
+│   └── glucose/                               # componentes de domínio reutilizados
+│       ├── glucoseValue/index.tsx             # número + mg/dL (tamanhos e cor por status)
+│       ├── statusBadge/index.tsx              # No Alvo / Acima / Hipo
+│       ├── contextChip/index.tsx              # JEJUM, 2H PÓS-ALMOÇO…
+│       ├── cycleDayTag/index.tsx              # Dia A (1 de 3) / Dia B
+│       ├── trendIndicator/index.tsx           # seta de tendência + texto
+│       ├── insulinPill/index.tsx              # 0 UI / Correção +1 UI
+│       ├── glycemicRangeBar/
+│       │   ├── index.tsx
+│       │   └── components/
+│       │       ├── rangeSegments/index.tsx
+│       │       └── rangeScale/index.tsx       # rótulos + pip da leitura atual
+│       ├── timeInRangeSummary/index.tsx       # Hipo / Alvo / Hiper (%)
+│       ├── cycleProgressRing/index.tsx
+│       ├── readingContextPicker/index.tsx     # momento da leitura (modal e filtros)
+│       ├── doctorCard/index.tsx               # Metas e Novo Padrão
+│       └── glucoseChart/
+│           ├── index.tsx                      # compõe o SVG
+│           ├── useChartScale.ts               # escalas x/y, path suavizado
+│           └── components/
+│               ├── chartGrid/index.tsx
+│               ├── targetBand/index.tsx
+│               ├── chartLine/index.tsx        # linha + área com gradiente
+│               ├── chartPoint/index.tsx       # Dia A / Dia B / pico / hoje
+│               └── chartXAxis/index.tsx
+│
 ├── shared/
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── appHeader/index.tsx                # logo + título + subtítulo + avatar
-│   │   │   ├── tabBar/index.tsx
-│   │   │   ├── screenContainer/index.tsx          # safe area + paddings do header/tab bar
-│   │   │   └── sectionHeader/index.tsx            # ícone + título + ação opcional
-│   │   ├── ui/
-│   │   │   ├── button/index.tsx                   # variants: primary | secondary | outlined | ghost | danger
-│   │   │   ├── gradientButton/index.tsx           # CTA com gradiente (dark)
-│   │   │   ├── iconButton/index.tsx
-│   │   │   ├── backButton/index.tsx
-│   │   │   ├── card/index.tsx                     # variants: default | highlight | recessed
-│   │   │   ├── subBlock/index.tsx
-│   │   │   ├── badge/index.tsx                    # pill/tag genérico
-│   │   │   ├── filterChips/index.tsx              # lista horizontal rolável
-│   │   │   ├── stepBadge/index.tsx                # círculo numerado ①②③
-│   │   │   ├── stepHeader/index.tsx               # stepBadge + título + badge
-│   │   │   ├── textField/index.tsx
-│   │   │   ├── numericField/index.tsx             # valor + unidade (alvos, limites)
-│   │   │   ├── selectField/index.tsx              # abre bottomSheet de opções
-│   │   │   ├── textAreaField/index.tsx
-│   │   │   ├── segmentedControl/index.tsx
-│   │   │   ├── selectableCard/index.tsx           # base de radio cards e opções
-│   │   │   ├── optionGrid/index.tsx               # grid de opções (single/multi)
-│   │   │   ├── switch/index.tsx
-│   │   │   ├── toggleRow/index.tsx                # título + descrição + switch
-│   │   │   ├── stepper/index.tsx
-│   │   │   ├── bottomSheet/index.tsx
-│   │   │   ├── toast/index.tsx
-│   │   │   ├── infoBanner/index.tsx
-│   │   │   ├── emptyState/index.tsx
-│   │   │   ├── avatar/index.tsx
-│   │   │   ├── icon/index.tsx                     # wrapper Material Symbols
-│   │   │   └── divider/index.tsx
-│   │   └── glucose/                               # componentes de domínio reutilizados
-│   │       ├── glucoseValue/index.tsx             # número + mg/dL (tamanhos e cor por status)
-│   │       ├── statusBadge/index.tsx              # No Alvo / Acima / Hipo
-│   │       ├── contextChip/index.tsx              # JEJUM, 2H PÓS-ALMOÇO…
-│   │       ├── cycleDayTag/index.tsx              # Dia A (1 de 3) / Dia B
-│   │       ├── trendIndicator/index.tsx           # seta de tendência + texto
-│   │       ├── insulinPill/index.tsx              # 0 UI / Correção +1 UI
-│   │       ├── glycemicRangeBar/
-│   │       │   ├── index.tsx
-│   │       │   └── components/
-│   │       │       ├── rangeSegments/index.tsx
-│   │       │       └── rangeScale/index.tsx       # rótulos + pip da leitura atual
-│   │       ├── timeInRangeSummary/index.tsx       # Hipo / Alvo / Hiper (%)
-│   │       ├── cycleProgressRing/index.tsx
-│   │       ├── readingContextPicker/index.tsx     # momento da leitura (modal e filtros)
-│   │       ├── doctorCard/index.tsx               # Metas e Novo Padrão
-│   │       └── glucoseChart/
-│   │           ├── index.tsx                      # compõe o SVG
-│   │           ├── useChartScale.ts               # escalas x/y, path suavizado
-│   │           └── components/
-│   │               ├── chartGrid/index.tsx
-│   │               ├── targetBand/index.tsx
-│   │               ├── chartLine/index.tsx        # linha + área com gradiente
-│   │               ├── chartPoint/index.tsx       # Dia A / Dia B / pico / hoje
-│   │               └── chartXAxis/index.tsx
 │   ├── hooks/
 │   │   ├── useTheme/index.ts
 │   │   ├── useGlucoseStatus/index.ts
@@ -1143,7 +1186,7 @@ src/
 ├── services/
 │   ├── notifications/index.ts                     # lembretes e alarmes locais
 │   ├── attachments/index.ts                       # copia receitas/laudos para o app
-│   ├── backup/index.ts                            # exportar / restaurar .json
+│   ├── backup/index.ts                            # FUTURO: exportar / restaurar .json
 │   ├── export/
 │   │   ├── pdf/index.ts                           # laudo (expo-print)
 │   │   └── xlsx/index.ts                          # planilha (SheetJS)
@@ -1177,7 +1220,7 @@ export function HomeScreen() {
 }
 ```
 
-Componente que reutiliza peças de `shared` e delega a lógica:
+Componente que reutiliza peças de `src/components` e delega a lógica:
 
 ```tsx
 // src/screens/home/components/lastReadingCard/index.tsx
@@ -1187,7 +1230,7 @@ export function LastReadingCard({ reading }: LastReadingCardProps) {
   return (
     <Card variant="hero" status={status}>
       <ReadingHeader context={reading.context} time={reading.timestamp} target={target} />
-      <View style={styles.valueRow}>
+      <View className="flex-row items-end gap-sm">
         <GlucoseValue value={reading.value} size="hero" />
         <TrendIndicator trend={trend} status={status} />
       </View>
@@ -1252,8 +1295,8 @@ Tela / seção ──► hook (useHistory, useNewReading…) ──► store (zu
 CREATE TABLE patterns (
   id                    TEXT PRIMARY KEY,
   name                  TEXT NOT NULL,
-  kind                  TEXT NOT NULL CHECK (kind IN ('comum','gestacional','custom')),
-  condition             TEXT,                       -- dm-estrito | pre-diabetes | atleta | ...
+  kind                  TEXT NOT NULL CHECK (kind IN ('standard','gestational','custom')),
+  condition             TEXT,                       -- strict-dm | prediabetes | athlete | ...
   fasting_min           INTEGER,
   fasting_max           INTEGER,
   postmeal_max          INTEGER,
@@ -1280,7 +1323,7 @@ CREATE TABLE readings (
   id               TEXT PRIMARY KEY,
   value            INTEGER NOT NULL CHECK (value BETWEEN 20 AND 600),  -- mg/dL
   measured_at      TEXT NOT NULL,                  -- ISO 8601 com fuso
-  context          TEXT NOT NULL,                  -- jejum | pre-prandial | pos-prandial-2h | ...
+  context          TEXT NOT NULL,                  -- MealContext: fasting | pre-meal | post-meal-2h | ...
   note             TEXT,
   insulin_units    REAL,
   is_correction    INTEGER NOT NULL DEFAULT 0,
@@ -1291,7 +1334,7 @@ CREATE TABLE readings (
   pattern_id       TEXT REFERENCES patterns(id) ON DELETE SET NULL,
   target_min       INTEGER,
   target_max       INTEGER,
-  status           TEXT NOT NULL,                  -- hipo-critico | hipo | no-alvo | atencao | alto | critico
+  status           TEXT NOT NULL,                  -- GlucoseStatus: severe-hypo | hypo | below-target | in-range | above-target | severe-hyper
   source           TEXT NOT NULL DEFAULT 'manual' CHECK (source IN ('manual','import')),
   created_at       TEXT NOT NULL,
   updated_at       TEXT NOT NULL
@@ -1327,7 +1370,7 @@ CREATE TABLE settings (
 | `frequency` | `FrequencySchedule` (modo, Dia A/B, horários, início do ciclo) |
 | `reminders` | `ReminderSettings` |
 | `exportReminders` | lembretes de planilha semanal / laudo mensal |
-| `backup` | `{ lastBackupAt, monthlyReminder: boolean }` |
+| `backup` | *Futuro:* `{ lastBackupAt, monthlyReminder: boolean }` |
 | `onboarding` | `{ completedAt }` |
 
 ### 13.4 Migrations e seed
@@ -1373,9 +1416,9 @@ export const settingsRepository = {
 
 Depois de salvar `frequency` ou `reminders`, chamar `notificationsService.reschedule()`, que cancela e reagenda todas as notificações locais conforme o ciclo.
 
-### 13.6 Backup e restauração (essencial sem nuvem)
+### 13.6 Backup e restauração (futuro)
 
-Sem servidor, **desinstalar o app ou trocar de celular apaga os dados**. Por isso o MVP precisa de backup manual:
+> **Fora do MVP por enquanto.** Sem servidor, desinstalar o app ou trocar de celular apaga os dados. Esse risco foi aceito no MVP. A especificação abaixo fica guardada para quando o backup entrar.
 
 - **Exportar backup** (Ajustes e menu Exportar do Histórico): gera `mellitus-backup-AAAA-MM-DD.json` e abre a folha de compartilhamento, para salvar em Arquivos, Drive, e-mail etc.
 

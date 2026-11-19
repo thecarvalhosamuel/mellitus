@@ -11,20 +11,24 @@ App mobile de **monitoramento glicêmico** para pessoas com diabetes: registro m
 ## Convenções obrigatórias
 
 1. **Todo componente é uma pasta camelCase com `index.tsx`**: `glucoseChart/index.tsx` → `export function GlucoseChart`.
-   - Arquivos opcionais: `styles.ts`, `types.ts`, `useNomeComponente.ts`, `components/` (subcomponentes privados).
+   - Arquivos opcionais: `styles.ts` (mapas de variantes de classes), `types.ts`, `useNomeComponente.ts`, `components/` (subcomponentes privados).
    - Vale também para hooks, utils, types, theme e repositórios (`nome/index.ts`).
    - Exceção: `_layout.tsx` do Expo Router.
 2. **Arquivos de rota** só reexportam a tela: `export { HomeScreen as default } from '@/screens/home';`
 3. **Onde colocar componentes:**
-   - Usado em 2+ telas ou primitivo de UI → `src/shared/components/…`
+   - Usado em 2+ telas ou primitivo de UI → `src/components/…` (`layout/`, `ui/`, `glucose/`)
    - Usado em uma tela → `src/screens/<tela>/components/…`
    - Usado só por outro componente → `<componente>/components/…`
-   - Passou a ser reutilizado → **mover** para `shared` (nunca duplicar).
+   - Passou a ser reutilizado → **mover** para `src/components` (nunca duplicar).
+   - `src/shared/` não tem componentes: só `hooks`, `theme`, `utils`, `types`, `constants`.
 4. **Uma responsabilidade por componente.** Limite indicativo de ~150 linhas por `index.tsx`; acima disso, extrair subcomponentes ou hook.
 5. **Telas só compõem seções** e conectam dados (store/hook). Sem estilização detalhada nelas.
 6. **Componentes de UI recebem dados por props** e nunca acessam store nem banco.
 7. **Lógica fora do JSX:** regras de glicemia, ciclo e estatísticas em `shared/utils` ou hooks.
-8. **Nunca usar hex direto em componentes.** Sempre `const { colors } = useTheme()` com chaves semânticas.
+8. **Estilo com NativeWind + tokens semânticos. Nunca usar hex direto** nem cores da paleta padrão do Tailwind (`bg-teal-600`).
+   - Padrão: `className` com classes semânticas (`bg-card`, `text-muted`, `bg-status-in-range-bg`, `rounded-card`).
+   - Onde `className` não se aplica (SVG, `expo-linear-gradient`, `expo-blur`, navegação, Reanimated): `const { colors } = useTheme()` com as mesmas chaves.
+   - Fonte única dos tokens: `src/shared/theme` → gera as variáveis CSS do NativeWind e alimenta o `useTheme()`.
 9. Imports com alias `@/` (→ `src/`). Componentes exportados com named export.
 10. Não fragmentar sem motivo: trecho pequeno, sem lógica e sem reuso pode ficar no próprio componente.
 
@@ -47,16 +51,18 @@ A classificação usa a meta do **padrão ativo** para o contexto da leitura (je
 
 | Status | Condição | Rótulo | Cor |
 |---|---|---|---|
-| `hipo-critico` | < 54 | Hipo Severa | crimson + halo |
-| `hipo` | < alerta hipo (padrão 70) | Hipo Leve | crimson |
-| `atencao` | < mínimo e ≥ alerta hipo | Abaixo da Meta | âmbar |
-| `no-alvo` | dentro da faixa | No Alvo | verde |
-| `alto` | > máximo e ≤ alerta hiper | Acima da Meta | âmbar |
-| `critico` | > alerta hiper (padrão 200) | Hiper Severa | crimson + halo |
+| `severe-hypo` | < 54 | Hipo Severa | crimson + halo |
+| `hypo` | < alerta hipo (padrão 70) | Hipo Leve | crimson |
+| `below-target` | < mínimo e ≥ alerta hipo | Abaixo da Meta | âmbar |
+| `in-range` | dentro da faixa | No Alvo | verde |
+| `above-target` | > máximo e ≤ alerta hiper | Acima da Meta | âmbar |
+| `severe-hyper` | > alerta hiper (padrão 200) | Hiper Severa | crimson + halo |
+
+- **Identificadores (enums, chaves, valores no banco) sempre em inglês**; o rótulo pt-BR fica só na UI/constantes. Momentos (`MealContext`): `fasting`, `pre-meal`, `post-meal-1h`, `post-meal-2h`, `pre-dinner`, `post-dinner`, `bedtime`, `overnight`, `other`. Frequências (`FrequencyMode`): `3x`, `1x`, `alternating`, `every-other-day`, `every-72h`, `custom`.
 
 - **Nenhuma meta fixa na UI:** badges, "Meta: 80–130", faixa do gráfico e barras vêm do padrão ativo (ou da meta gravada na leitura).
 - **Ciclo alternado:** `diasDesde(cycleStart) % 2 === 0 ? 'A' : 'B'`. Dia A = 3 medições; Dia B = 1 (jejum).
-- **TIR (% no alvo)** = leituras `no-alvo` / total do período. Meta > 70%.
+- **TIR (% no alvo)** = leituras `in-range` / total do período. Meta > 70%.
 - Entrada manual limitada a 40–450 mg/dL. O banco aceita 20–600 (importação).
 - Valores clínicos padrão são exemplos e **precisam de validação profissional**.
 
@@ -93,7 +99,7 @@ A classificação usa a meta do **padrão ativo** para o contexto da leitura (je
 ## Ao trabalhar neste projeto
 
 - Leia a seção relevante do `DESIGN.md` antes de implementar uma tela ou componente.
-- Antes de criar componente novo, verifique se já existe algo equivalente em `src/shared/components`.
+- Antes de criar componente novo, verifique se já existe algo equivalente em `src/components`.
 - Escreva testes para regras em `shared/utils` (classificação, ciclo, estatísticas).
 - Rode `npx tsc --noEmit` e os testes antes de concluir uma tarefa.
 - Instale libs nativas com `npx expo install`, não com `npm i`.
