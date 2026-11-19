@@ -1,0 +1,5 @@
+/* As cores não ficam aqui: são variáveis CSS aplicadas em runtime pelo
+   ThemeProvider a partir de src/shared/theme/colors (fonte única). */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
