@@ -4,31 +4,44 @@ import { ScreenContainer } from '@/components/layout/screenContainer';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/emptyState';
 
+import { CycleScheduleCard } from './components/cycleScheduleCard';
+import { GlucoseCurveSection } from './components/glucoseCurveSection';
 import { GreetingHeader } from './components/greetingHeader';
 import { LastReadingCard } from './components/lastReadingCard';
 import { NewReadingButton } from './components/newReadingButton';
 import { RecentReadingsSection } from './components/recentReadingsSection';
 import { useHomeData } from './useHomeData';
 
-// Ciclo do dia, curva glicêmica e métricas do mês entram na etapa 9.
 export function HomeScreen() {
-  const { profileName, patternName, lastReading, recentReadings } = useHomeData();
+  const home = useHomeData();
 
   return (
     <>
       <ScreenContainer bottomInset={72}>
-        <GreetingHeader name={profileName} patternName={patternName} />
-        {lastReading ? (
-          <>
-            <LastReadingCard reading={lastReading} />
-            <RecentReadingsSection readings={recentReadings} onSeeAll={() => router.navigate('/history')} />
-          </>
+        <GreetingHeader name={home.profileName} patternName={home.patternName} />
+        {home.lastReading ? (
+          <LastReadingCard reading={home.lastReading} alerts={home.lastAlerts} monthStats={home.monthStats} />
         ) : (
           <EmptyState
             icon="water-drop"
             title="Nenhuma medição ainda"
             description="Registre sua primeira glicemia para acompanhar sua rotina por aqui."
           />
+        )}
+        {home.cycle && <CycleScheduleCard {...home.cycle} />}
+        {home.lastReading && (
+          <>
+            <GlucoseCurveSection
+              period={home.curve.period}
+              periodOptions={home.curve.periodOptions}
+              onChangePeriod={home.curve.setPeriod}
+              range={home.curve.range}
+              readings={home.curve.readings}
+              stats={home.curve.stats}
+              target={home.curve.target}
+            />
+            <RecentReadingsSection readings={home.recentReadings} onSeeAll={() => router.navigate('/history')} />
+          </>
         )}
         {__DEV__ && (
           <Button label="Catálogo de componentes" variant="ghost" icon="widgets" onPress={() => router.push('/dev')} />
