@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 
 import { lightColors } from './src/shared/theme/colors';
 import { toTailwindColors } from './src/shared/theme/cssVars';
-import { fontFamilyNames, radius, spacing, textTokens } from './src/shared/theme/tokens';
+import { fontFamilyNames, radius, sizes, spacing, textTokens } from './src/shared/theme/tokens';
 
 const px = (value: number) => `${value}px`;
 const mapPx = <T extends Record<string, number>>(obj: T) =>
@@ -38,7 +38,7 @@ export default {
       ]),
     ),
     extend: {
-      spacing: mapPx(spacing),
+      spacing: mapPx({ ...spacing, ...sizes }),
       borderRadius: {
         ...mapPx({ sm: radius.sm, md: radius.md, lg: radius.lg, xl: radius.xl }),
         DEFAULT: px(radius.base),

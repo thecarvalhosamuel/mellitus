@@ -3,6 +3,9 @@
 
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, margin: 16 } as const;
 
+/** Alvos de toque: mínimo 44, ideal 48 (DESIGN.md §8). */
+export const sizes = { touch: 44, control: 48 } as const;
+
 export const radius = {
   sm: 4,
   base: 8, // inputs, botões, sub-blocos
@@ -28,6 +31,24 @@ export const textTokens = {
   'label-md': { fontSize: 12, lineHeight: 16, letterSpacing: 0.24 },
   'label-sm': { fontSize: 10, lineHeight: 14, letterSpacing: 0.4 },
 } as const satisfies Record<string, TextToken>;
+
+/** Sombras do tema claro (DESIGN.md §2.6). No escuro a hierarquia vem de borda + tom. */
+export const elevation = {
+  card: {
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
+  },
+  sheet: {
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.12,
+    shadowRadius: 32,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 8,
+  },
+} as const;
 
 export const fontFamilyNames = {
   regular: 'PlusJakartaSans_400Regular',

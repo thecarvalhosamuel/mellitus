@@ -25,9 +25,19 @@ export const lightColors = {
   track: '#EAEDFF',
   ringTrack: '#DAE2FD',
   grid: '#EAEDFF',
+  onControl: '#00685F',
   sheet: '#FFFFFF',
   overlay: 'rgba(40,48,68,0.40)',
   divider: '#F1F5F9',
+
+  input: '#F2F3FF',
+  inputBorder: 'transparent',
+  inputFocus: '#00685F',
+  switchOff: '#DAE2FD',
+  switchOn: '#00685F',
+  switchThumb: '#FFFFFF',
+  destructive: '#BE123C',
+  onDestructive: '#FFFFFF',
 
   textStrong: '#131B2E',
   text: '#131B2E',
@@ -46,6 +56,9 @@ export const lightColors = {
 
   inverseSurface: '#283044',
   onInverseSurface: '#EEF0FF',
+  // Ícones do toast sobre inverse-surface (contraste ≥ 3:1).
+  toastSuccess: '#34D399',
+  toastError: '#FB7185',
   error: '#BA1A1A',
   errorContainer: '#FFDAD6',
   onErrorContainer: '#93000A',
@@ -105,9 +118,20 @@ export const darkColors: ThemeColors = {
   track: '#081523',
   ringTrack: '#16273C',
   grid: '#1E2F42',
+  onControl: '#F8FAFC',
   sheet: '#0D1C2D',
   overlay: 'rgba(1,15,31,0.80)',
   divider: 'rgba(148,163,184,0.12)',
+
+  input: '#0D1C2D',
+  inputBorder: 'rgba(148,163,184,0.20)',
+  inputFocus: '#14B8A6',
+  switchOff: '#0F172A',
+  switchOn: '#14B8A6',
+  switchThumb: '#FFFFFF',
+  // #F43F5E com texto branco fica em 3,7:1; #E11D48 passa AA (4,7:1).
+  destructive: '#E11D48',
+  onDestructive: '#FFFFFF',
 
   textStrong: '#F8FAFC',
   text: '#D4E4FA',
@@ -126,6 +150,8 @@ export const darkColors: ThemeColors = {
 
   inverseSurface: '#D4E4FA',
   onInverseSurface: '#233143',
+  toastSuccess: '#047857',
+  toastError: '#BE123C',
   error: '#FFB4AB',
   errorContainer: '#93000A',
   onErrorContainer: '#FFDAD6',
