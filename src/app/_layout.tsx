@@ -32,7 +32,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider appearance={appearance}>
-      {init.error ? <InitError /> : <RootStack />}
+      {init.error ? <InitError error={init.error} /> : <RootStack />}
     </ThemeProvider>
   );
 }
@@ -58,8 +58,8 @@ function RootStack() {
   );
 }
 
-// Falha ao abrir o banco: mensagem calma, sem detalhes técnicos.
-function InitError() {
+// Falha ao abrir o banco: mensagem calma; o detalhe técnico só aparece em desenvolvimento.
+function InitError({ error }: { error: Error }) {
   return (
     <View className="flex-1 items-center justify-center gap-sm bg-bg px-margin">
       <Text className="text-center font-bold text-headline-sm text-text-strong">
@@ -68,6 +68,11 @@ function InitError() {
       <Text className="text-center font-regular text-body-md text-text-secondary">
         Feche o app e abra de novo. Seus registros continuam guardados neste aparelho.
       </Text>
+      {__DEV__ && (
+        <Text selectable className="mt-md font-regular text-body-sm text-status-danger-fg">
+          {error.message}
+        </Text>
+      )}
     </View>
   );
 }

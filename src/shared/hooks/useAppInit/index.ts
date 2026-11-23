@@ -24,9 +24,10 @@ export function useAppInit(): InitState {
   useEffect(() => {
     initializeApp()
       .then(() => setState({ ready: true, error: null }))
-      .catch((error: unknown) =>
-        setState({ ready: true, error: error instanceof Error ? error : new Error(String(error)) }),
-      );
+      .catch((error: unknown) => {
+        console.error('[init] falha ao inicializar o app', error);
+        setState({ ready: true, error: error instanceof Error ? error : new Error(String(error)) });
+      });
   }, []);
 
   return state;
