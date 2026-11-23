@@ -6,6 +6,9 @@ export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, margin: 16 } as c
 /** Alvos de toque: mínimo 44, ideal 48 (DESIGN.md §8). */
 export const sizes = { touch: 44, control: 48 } as const;
 
+/** App shell (DESIGN.md §3.1): header e tab bar fixos, sem contar a safe area. */
+export const layout = { headerHeight: 64, tabBarHeight: 64 } as const;
+
 export const radius = {
   sm: 4,
   base: 8, // inputs, botões, sub-blocos
