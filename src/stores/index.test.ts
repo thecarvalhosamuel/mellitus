@@ -4,7 +4,9 @@ import { readingsRepository } from '@/database/repositories/readings';
 import { settingsRepository } from '@/database/repositories/settings';
 import { runSeed } from '@/database/seed';
 import { createMemoryDatabase } from '@/database/testUtils';
-import { GESTATIONAL_PATTERN_ID } from '@/shared/constants/defaultPatterns';
+import { patternsRepository } from '@/database/repositories/patterns';
+import { deleteAttachmentFile } from '@/services/attachments';
+import { DEFAULT_PATTERNS, GESTATIONAL_PATTERN_ID } from '@/shared/constants/defaultPatterns';
 
 import { useDashboardStore } from './dashboard';
 import { useHistoryStore } from './history';
@@ -13,6 +15,10 @@ import { useReadingsStore } from './readings';
 import { useSettingsStore } from './settings';
 
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn() }));
+jest.mock('@/services/attachments', () => ({
+  importAttachment: jest.fn(async (_file: unknown, id: string) => `attachments/${id}.jpg`),
+  deleteAttachmentFile: jest.fn(),
+}));
 jest.mock('expo-crypto', () => ({ 
   randomUUID: () => crypto.randomUUID(),
 }));
@@ -135,6 +141,42 @@ describe('stores', () => {
     await useReadingsStore.getState().remove(saved.id);
     expect(useReadingsStore.getState().recent).toEqual([]);
     expect(await readingsRepository.getById(saved.id)).toBeNull();
+  });
+
+  it('padrão personalizado é salvo com anexos e ativado; excluir apaga os arquivos', async () => {
+    const custom = {
+      ...DEFAULT_PATTERNS[0],
+      id: 'custom-1',
+      name: 'Plano Dr. Roberto',
+      kind: 'custom' as const,
+      status: 'draft' as const,
+    };
+    const photo = { uri: 'file:///cache/receita.jpg', mimeType: 'image/jpeg' as const, name: 'receita.jpg' };
+
+    await usePatternsStore.getState().saveWithAttachments(custom, { activate: true }, { added: [photo], removed: [] });
+    expect(usePatternsStore.getState().active?.id).toBe('custom-1');
+    const [attachment] = await usePatternsStore.getState().listAttachments('custom-1');
+    expect(attachment.fileUri).toMatch(/^attachments\/.+\.jpg$/);
+
+    await usePatternsStore.getState().saveWithAttachments(custom, { activate: true }, { added: [], removed: [attachment] });
+    expect(await usePatternsStore.getState().listAttachments('custom-1')).toEqual([]);
+    expect(deleteAttachmentFile).toHaveBeenCalledWith(attachment.fileUri);
+
+    await usePatternsStore.getState().activate(GESTATIONAL_PATTERN_ID);
+    await usePatternsStore.getState().remove('custom-1');
+    expect(usePatternsStore.getState().patterns.map((p) => p.id)).not.toContain('custom-1');
+  });
+
+  it('se o banco falhar ao salvar o padrão, os arquivos copiados são apagados', async () => {
+    jest.spyOn(patternsRepository, 'saveWithAttachments').mockRejectedValueOnce(new Error('falhou'));
+    const custom = { ...DEFAULT_PATTERNS[0], id: 'custom-2', name: 'X', kind: 'custom' as const, status: 'draft' as const };
+    const photo = { uri: 'file:///cache/a.jpg', mimeType: 'image/jpeg' as const, name: 'a.jpg' };
+    (deleteAttachmentFile as jest.Mock).mockClear();
+    await expect(
+      usePatternsStore.getState().saveWithAttachments(custom, { activate: false }, { added: [photo], removed: [] }),
+    ).rejects.toThrow('falhou');
+    expect(deleteAttachmentFile).toHaveBeenCalledTimes(1);
+    expect(usePatternsStore.getState().patterns.map((p) => p.id)).not.toContain('custom-2');
   });
 
   it('trocar o padrão reverte se o banco falhar', async () => {

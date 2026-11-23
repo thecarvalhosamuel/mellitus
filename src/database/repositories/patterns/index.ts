@@ -1,6 +1,7 @@
 import type { ClinicalPattern, PatternCondition, PatternKind, PatternStatus } from '@/shared/types/pattern';
 
 import { getDatabase, runInTransaction, type SqlValue } from '../../client';
+import { attachmentsRepository, type Attachment } from '../attachments';
 
 type PatternRow = {
   id: string;
@@ -147,6 +148,23 @@ export const patternsRepository = {
     });
 
     return { ...toSave, isBuiltin: opts.isBuiltin ?? false };
+  },
+
+  /**
+   * Salva o padrão e ajusta seus anexos na mesma transação: se algo falhar,
+   * nem o padrão nem os anexos mudam.
+   */
+  async saveWithAttachments(
+    pattern: ClinicalPattern,
+    opts: { activate: boolean; add: Omit<Attachment, 'createdAt'>[]; removeIds: string[] },
+  ): Promise<StoredPattern> {
+    let saved: StoredPattern | undefined;
+    await runInTransaction(async () => {
+      saved = await this.save(pattern, { activate: opts.activate });
+      for (const id of opts.removeIds) await attachmentsRepository.remove(id);
+      for (const attachment of opts.add) await attachmentsRepository.add(attachment);
+    });
+    return saved!;
   },
 
   /** Transação: desativa o padrão atual e ativa o novo. Rascunhos também podem ser ativados. */

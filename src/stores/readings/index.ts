@@ -20,6 +20,8 @@ type ReadingsState = {
   load(): Promise<void>;
   /** Busca uma leitura para edição (pode não estar entre as recentes). */
   getById(id: string): Promise<GlucoseReading | null>;
+  /** Leituras de um intervalo [from, to) ISO, sob demanda (ex.: simulação de TIR). */
+  listRange(from: string, to: string): Promise<GlucoseReading[]>;
   /** Classifica com o padrão ativo, mostra na hora e grava; reverte se falhar. */
   add(input: ReadingInput): Promise<GlucoseReading>;
   /** Reclassifica com o padrão da própria leitura (ou o ativo, se ele não existir mais). */
@@ -60,6 +62,10 @@ export const useReadingsStore = create<ReadingsState>()((set, get) => ({
 
   getById(id) {
     return readingsRepository.getById(id);
+  },
+
+  listRange(from, to) {
+    return readingsRepository.listRange(from, to);
   },
 
   async add(input) {
