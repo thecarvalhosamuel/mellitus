@@ -41,3 +41,14 @@ export const READING_CONTEXTS: Record<MealContext, ReadingContextInfo> = {
 };
 
 export const MEAL_CONTEXTS = Object.keys(READING_CONTEXTS) as MealContext[];
+
+export type ContextFilter = 'all' | 'fasting' | 'pre-meal' | 'post-meal' | 'night';
+
+/** Filtros do histórico (DESIGN.md §5.2): agrupam momentos parecidos. "Outro" só aparece em Todos. */
+export const CONTEXT_FILTERS: { value: ContextFilter; label: string; contexts: MealContext[] | 'all' }[] = [
+  { value: 'all', label: 'Todos', contexts: 'all' },
+  { value: 'fasting', label: 'Jejum', contexts: ['fasting'] },
+  { value: 'pre-meal', label: 'Pré-prandial', contexts: ['pre-meal', 'pre-dinner'] },
+  { value: 'post-meal', label: 'Pós-prandial', contexts: ['post-meal-1h', 'post-meal-2h', 'post-dinner'] },
+  { value: 'night', label: 'Noturno', contexts: ['bedtime', 'overnight'] },
+];
