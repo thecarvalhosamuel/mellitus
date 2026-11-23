@@ -168,6 +168,15 @@ export const readingsRepository = {
     return rows.map(fromRow);
   },
 
+  /** Leituras de [from, to) (ISO), em ordem de horário (curva glicêmica). */
+  async listRange(from: string, to: string): Promise<GlucoseReading[]> {
+    const rows = await getDatabase().getAllAsync<ReadingRow>(
+      'SELECT * FROM readings WHERE measured_at >= ? AND measured_at < ? ORDER BY measured_at ASC',
+      [toUtc(from), toUtc(to)],
+    );
+    return rows.map(fromRow);
+  },
+
   /** Estatísticas de [from, to) (ISO). */
   async statsForRange(from: string, to: string): Promise<PeriodStats> {
     const rows = await getDatabase().getAllAsync<Pick<ReadingRow, 'value' | 'status' | 'measured_at'>>(

@@ -6,6 +6,7 @@ import { runSeed } from '@/database/seed';
 import { createMemoryDatabase } from '@/database/testUtils';
 import { GESTATIONAL_PATTERN_ID } from '@/shared/constants/defaultPatterns';
 
+import { useDashboardStore } from './dashboard';
 import { useHistoryStore } from './history';
 import { usePatternsStore } from './patterns';
 import { useReadingsStore } from './readings';
@@ -32,6 +33,7 @@ beforeEach(async () => {
   await Promise.all([useSettingsStore.getState().load(), usePatternsStore.getState().load()]);
   await useReadingsStore.getState().load();
   useHistoryStore.setState({ readings: [], months: [], loaded: false });
+  useDashboardStore.setState({ period: 'current-month', periodReadings: [], loaded: false });
 });
 
 afterEach(() => {
@@ -93,6 +95,25 @@ describe('stores', () => {
 
     await useHistoryStore.getState().selectMonth({ year: 2024, month: 9 });
     expect(useHistoryStore.getState().month).toEqual({ year: 2024, month: 9 });
+  });
+
+  it('painel calcula o período do gráfico e as métricas do mês, e acompanha novos registros', async () => {
+    const now = new Date();
+    const today = (h: number, value: number) => ({
+      value,
+      context: 'fasting' as const,
+      timestamp: new Date(now.getFullYear(), now.getMonth(), now.getDate(), h).toISOString(),
+    });
+    await useDashboardStore.getState().setPeriod('last-7');
+    expect(useDashboardStore.getState().periodStats.count).toBe(0);
+
+    await useReadingsStore.getState().add(today(7, 100));
+    await useReadingsStore.getState().add(today(8, 160));
+    await waitFor(() => useDashboardStore.getState().periodReadings.length === 2);
+    const { periodStats, monthStats } = useDashboardStore.getState();
+    expect(periodStats.mean).toBe(130);
+    expect(periodStats.tir.inRange).toBe(0.5);
+    expect(monthStats.count).toBe(2);
   });
 
   it('reverte a leitura otimista se o banco falhar', async () => {

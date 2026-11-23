@@ -5,6 +5,7 @@ import { readingsRepository } from '@/database/repositories/readings';
 import type { GlucoseReading } from '@/shared/types/reading';
 import { toDateKey } from '@/shared/utils/date';
 import { buildReading, type ReadingInput } from '@/shared/utils/reading';
+import { useDashboardStore } from '@/stores/dashboard';
 import { useHistoryStore } from '@/stores/history';
 import { usePatternsStore } from '@/stores/patterns';
 
@@ -31,10 +32,12 @@ const byOldest = (a: GlucoseReading, b: GlucoseReading) => -byNewest(a, b);
 const keepRecent = (list: GlucoseReading[]) => [...list].sort(byNewest).slice(0, RECENT_LIMIT);
 const isToday = (reading: GlucoseReading) => toDateKey(reading.timestamp) === toDateKey(new Date());
 
-/** Mantém o histórico em sincronia depois de uma gravação (só se ele já foi aberto). */
-function refreshHistory() {
+/** Mantém histórico e painel em sincronia depois de uma gravação (só os já carregados). */
+function refreshViews() {
   const history = useHistoryStore.getState();
   if (history.loaded) void history.reload().catch(() => undefined);
+  const dashboard = useDashboardStore.getState();
+  if (dashboard.loaded) void dashboard.reload().catch(() => undefined);
 }
 
 function requireActivePattern() {
@@ -68,7 +71,7 @@ export const useReadingsStore = create<ReadingsState>()((set, get) => ({
     });
     try {
       await readingsRepository.create(reading);
-      refreshHistory();
+      refreshViews();
       return reading;
     } catch (error) {
       set(previous);
@@ -90,7 +93,7 @@ export const useReadingsStore = create<ReadingsState>()((set, get) => ({
     });
     try {
       await readingsRepository.update(updated);
-      refreshHistory();
+      refreshViews();
       // Se a leitura editada saiu das recentes, recarrega a lista do banco.
       if (!previous.recent.some((r) => r.id === id)) await get().load();
       return updated;
@@ -105,7 +108,7 @@ export const useReadingsStore = create<ReadingsState>()((set, get) => ({
     set({ recent: previous.recent.filter((r) => r.id !== id), today: previous.today.filter((r) => r.id !== id) });
     try {
       await readingsRepository.remove(id);
-      refreshHistory();
+      refreshViews();
       await get().load();
     } catch (error) {
       set(previous);
