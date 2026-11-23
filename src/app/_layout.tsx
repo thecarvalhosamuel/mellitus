@@ -7,8 +7,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Text, View } from 'react-native';
 
+import { Toast } from '@/components/ui/toast';
 import { useAppInit } from '@/shared/hooks/useAppInit';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useToastState } from '@/shared/hooks/useToast';
 import { ThemeProvider } from '@/shared/theme';
 import { fontAssets } from '@/shared/theme/typography';
 import { useSettingsStore } from '@/stores/settings';
@@ -37,11 +39,13 @@ export default function RootLayout() {
 
 function RootStack() {
   const { scheme, colors } = useTheme();
+  const toast = useToastState();
 
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />
+      <Toast toast={toast.current} onDismiss={toast.hide} />
     </>
   );
 }
