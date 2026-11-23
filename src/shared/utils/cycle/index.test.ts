@@ -1,7 +1,15 @@
 import type { FrequencySchedule } from '@/shared/types/schedule';
 import { addDays, daysBetween, toDateKey } from '@/shared/utils/date';
 
-import { getCycleDay, getDayMoments, getDayProgress, getScheduleCycleDay, suggestReadingContext } from '.';
+import {
+  getCycleDay,
+  getCycleSlot,
+  getDayMoments,
+  getDayProgress,
+  getPendingMoments,
+  getScheduleCycleDay,
+  suggestReadingContext,
+} from '.';
 
 const dayA = {
   label: 'Dia A',
@@ -99,6 +107,22 @@ describe('getDayProgress', () => {
 
   it('dia de descanso tem 0/0', () => {
     expect(getDayProgress([], ['fasting'])).toEqual({ done: 0, total: 0, moments: [] });
+  });
+});
+
+describe('getCycleSlot e getPendingMoments', () => {
+  it('a nova leitura ocupa o primeiro momento pendente do mesmo contexto', () => {
+    expect(getCycleSlot(dayA.moments, [], 'fasting')).toEqual({ index: 1, total: 3 });
+    expect(getCycleSlot(dayA.moments, ['fasting'], 'bedtime')).toEqual({ index: 3, total: 3 });
+  });
+
+  it('sem posição se o momento já foi feito ou não está na rotina', () => {
+    expect(getCycleSlot(dayA.moments, ['fasting'], 'fasting')).toBeUndefined();
+    expect(getCycleSlot(dayA.moments, [], 'pre-dinner')).toBeUndefined();
+  });
+
+  it('lista só o que falta no dia, sem o marcador de feito', () => {
+    expect(getPendingMoments(dayA.moments, ['fasting'])).toEqual(dayA.moments.slice(1));
   });
 });
 

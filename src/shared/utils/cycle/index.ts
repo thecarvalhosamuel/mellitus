@@ -62,6 +62,27 @@ export function getDayProgress(moments: ScheduledMoment[], dayContexts: MealCont
   };
 }
 
+/**
+ * Posição da nova leitura na rotina do dia ("1 de 3"): o primeiro momento ainda
+ * pendente com o mesmo contexto. Fora da rotina, não há posição.
+ */
+export function getCycleSlot(
+  moments: ScheduledMoment[],
+  dayContexts: MealContext[],
+  context: MealContext,
+): { index: number; total: number } | undefined {
+  const { moments: withStatus } = getDayProgress(moments, dayContexts);
+  const position = withStatus.findIndex((m) => m.context === context && !m.done);
+  return position >= 0 ? { index: position + 1, total: moments.length } : undefined;
+}
+
+/** Momentos da rotina ainda não cumpridos hoje. */
+export function getPendingMoments(moments: ScheduledMoment[], dayContexts: MealContext[]): ScheduledMoment[] {
+  return getDayProgress(moments, dayContexts)
+    .moments.filter((m) => !m.done)
+    .map(({ done: _done, ...moment }) => moment);
+}
+
 // Faixas de horário para sugerir o momento quando a rotina não decide.
 const TIME_WINDOWS: [number, MealContext][] = [
   [4 * 60, 'overnight'],

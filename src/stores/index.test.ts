@@ -56,6 +56,19 @@ describe('stores', () => {
     expect(useReadingsStore.getState().recent.map((r) => r.value)).toEqual([104]);
   });
 
+  it('leituras de hoje entram em "today" em ordem de horário; as de outros dias não', async () => {
+    const now = new Date();
+    const at = (h: number) => new Date(now.getFullYear(), now.getMonth(), now.getDate(), h).toISOString();
+    await useReadingsStore.getState().add({ value: 140, context: 'bedtime', timestamp: at(22) });
+    await useReadingsStore.getState().add({ value: 100, context: 'fasting', timestamp: at(7) });
+    await useReadingsStore.getState().add(input(90, 1));
+    expect(useReadingsStore.getState().today.map((r) => r.value)).toEqual([100, 140]);
+
+    useReadingsStore.setState({ today: [] });
+    await useReadingsStore.getState().load();
+    expect(useReadingsStore.getState().today.map((r) => r.value)).toEqual([100, 140]);
+  });
+
   it('reverte a leitura otimista se o banco falhar', async () => {
     jest.spyOn(readingsRepository, 'create').mockRejectedValueOnce(new Error('disco cheio'));
     await expect(useReadingsStore.getState().add(input(104))).rejects.toThrow('disco cheio');
