@@ -1,4 +1,7 @@
+import { router } from 'expo-router';
 import { Text, View } from 'react-native';
+
+import { Button } from '@/components/ui/button';
 
 // Placeholder: as seções do Início entram nas etapas 7 e 9.
 // Serve para conferir o tema: tudo aqui usa só classes semânticas.
@@ -24,6 +27,10 @@ export function HomeScreen() {
           <Text className="font-bold text-label-sm text-status-in-range-fg">● NO ALVO</Text>
         </View>
       </View>
+
+      {__DEV__ && (
+        <Button label="Catálogo de componentes" variant="ghost" icon="widgets" onPress={() => router.push('/dev')} />
+      )}
     </View>
   );
 }
