@@ -6,6 +6,7 @@ import { runSeed } from '@/database/seed';
 import { createMemoryDatabase } from '@/database/testUtils';
 import { GESTATIONAL_PATTERN_ID } from '@/shared/constants/defaultPatterns';
 
+import { useHistoryStore } from './history';
 import { usePatternsStore } from './patterns';
 import { useReadingsStore } from './readings';
 import { useSettingsStore } from './settings';
@@ -17,6 +18,12 @@ jest.mock('expo-crypto', () => ({
 
 let db: ReturnType<typeof createMemoryDatabase>;
 
+/** O histórico recarrega em segundo plano; espera a condição por alguns ciclos. */
+async function waitFor(condition: () => boolean) {
+  for (let i = 0; i < 50 && !condition(); i++) await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(condition()).toBe(true);
+}
+
 beforeEach(async () => {
   db = createMemoryDatabase();
   setDatabase(db);
@@ -24,6 +31,7 @@ beforeEach(async () => {
   await runSeed(new Date(2024, 9, 21));
   await Promise.all([useSettingsStore.getState().load(), usePatternsStore.getState().load()]);
   await useReadingsStore.getState().load();
+  useHistoryStore.setState({ readings: [], months: [], loaded: false });
 });
 
 afterEach(() => {
@@ -67,6 +75,24 @@ describe('stores', () => {
     useReadingsStore.setState({ today: [] });
     await useReadingsStore.getState().load();
     expect(useReadingsStore.getState().today.map((r) => r.value)).toEqual([100, 140]);
+  });
+
+  it('histórico carrega por mês e acompanha registros, edições e exclusões', async () => {
+    await useHistoryStore.getState().selectMonth({ year: 2024, month: 10 });
+    expect(useHistoryStore.getState().readings).toEqual([]);
+
+    const saved = await useReadingsStore.getState().add(input(104));
+    await waitFor(() => useHistoryStore.getState().readings.length === 1);
+    expect(useHistoryStore.getState().months).toEqual([{ month: '2024-10', total: 1 }]);
+
+    await useReadingsStore.getState().update(saved.id, input(150));
+    await waitFor(() => useHistoryStore.getState().readings[0]?.value === 150);
+
+    await useReadingsStore.getState().remove(saved.id);
+    await waitFor(() => useHistoryStore.getState().readings.length === 0);
+
+    await useHistoryStore.getState().selectMonth({ year: 2024, month: 9 });
+    expect(useHistoryStore.getState().month).toEqual({ year: 2024, month: 9 });
   });
 
   it('reverte a leitura otimista se o banco falhar', async () => {
