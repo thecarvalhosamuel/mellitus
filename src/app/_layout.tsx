@@ -44,7 +44,15 @@ function RootStack() {
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+        <Stack.Screen name="(tabs)" />
+        {/* O sheet anima a si mesmo; a rota só abre por cima, transparente. */}
+        <Stack.Screen
+          name="(modals)/newReading/index"
+          options={{ presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } }}
+        />
+        <Stack.Screen name="dev/index" />
+      </Stack>
       <Toast toast={toast.current} onDismiss={toast.hide} />
     </>
   );
