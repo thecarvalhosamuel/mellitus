@@ -5,18 +5,22 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Text, View } from 'react-native';
 
+import { useAppInit } from '@/shared/hooks/useAppInit';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { ThemeProvider } from '@/shared/theme';
 import { fontAssets } from '@/shared/theme/typography';
+import { useSettingsStore } from '@/stores/settings';
 
-// Mantém a splash até a fonte carregar. Nas próximas etapas, o banco,
-// as migrations e as settings entram nesta mesma sequência de init.
+// Splash → fontes + banco (migrations, seed, padrão ativo, settings) → esconde a splash.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(fontAssets);
-  const ready = fontsLoaded || fontError !== null;
+  const init = useAppInit();
+  const appearance = useSettingsStore((s) => s.settings.appearance);
+  const ready = (fontsLoaded || fontError !== null) && init.ready;
 
   useEffect(() => {
     if (ready) SplashScreen.hideAsync();
@@ -25,8 +29,8 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <ThemeProvider>
-      <RootStack />
+    <ThemeProvider appearance={appearance}>
+      {init.error ? <InitError /> : <RootStack />}
     </ThemeProvider>
   );
 }
@@ -39,5 +43,19 @@ function RootStack() {
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }} />
     </>
+  );
+}
+
+// Falha ao abrir o banco: mensagem calma, sem detalhes técnicos.
+function InitError() {
+  return (
+    <View className="flex-1 items-center justify-center gap-sm bg-bg px-margin">
+      <Text className="text-center font-bold text-headline-sm text-text-strong">
+        Não conseguimos abrir seus dados
+      </Text>
+      <Text className="text-center font-regular text-body-md text-text-secondary">
+        Feche o app e abra de novo. Seus registros continuam guardados neste aparelho.
+      </Text>
+    </View>
   );
 }
