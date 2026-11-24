@@ -2,12 +2,12 @@ import { Text, View } from 'react-native';
 
 import { ScreenContainer } from '@/components/layout/screenContainer';
 import { DoctorCard } from '@/components/glucose/doctorCard';
+import { PatternCard } from '@/components/glucose/patternCard';
 import { Button } from '@/components/ui/button';
 import { GradientButton } from '@/components/ui/gradientButton';
 import { InfoBanner } from '@/components/ui/infoBanner';
 
 import { GoalsHeader } from './components/goalsHeader';
-import { PatternCard } from './components/patternCard';
 import { useGoals } from './useGoals';
 
 export function GoalsScreen() {
