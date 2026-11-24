@@ -8,18 +8,21 @@ import { useTheme } from '@/shared/hooks/useTheme';
 
 import { ClinicalReportFooter } from './components/clinicalReportFooter';
 import { DataInfoCard } from './components/dataInfoCard';
+import { ExportMenuSheet } from './components/exportMenuSheet';
 import { HistoryToolbar } from './components/historyToolbar';
 import { MonthPickerSheet } from './components/monthPickerSheet';
 import { ReadingDayGroup } from './components/readingDayGroup';
 import { useHistory } from './useHistory';
+import { useReportExport } from './useReportExport';
 
 export function HistoryScreen() {
   const history = useHistory();
+  const report = useReportExport();
   const { colors } = useTheme();
 
   return (
     <ScreenContainer>
-      <DataInfoCard totalInMonth={history.totalInMonth} />
+      <DataInfoCard totalInMonth={history.totalInMonth} onExport={report.openMenu} exporting={report.exporting} />
       <HistoryToolbar
         monthLabel={history.monthLabel}
         onPressMonth={history.openMonthPicker}
@@ -60,6 +63,12 @@ export function HistoryScreen() {
         </>
       )}
 
+      <ExportMenuSheet
+        visible={report.menuOpen}
+        monthLabel={history.monthLabel}
+        onClose={report.closeMenu}
+        onExportPdf={report.exportPdf}
+      />
       <MonthPickerSheet
         visible={history.monthPickerOpen}
         options={history.monthOptions}
