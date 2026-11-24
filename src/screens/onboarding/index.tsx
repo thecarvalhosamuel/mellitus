@@ -21,7 +21,11 @@ export function OnboardingScreen() {
         <PatternStep patterns={onboarding.patterns} selectedId={onboarding.patternId} onSelect={onboarding.setPatternId} />
       )}
       {onboarding.step === 2 && (
-        <NotificationsStep status={onboarding.notifications} onAsk={onboarding.askNotifications} />
+        <NotificationsStep
+          status={onboarding.notifications}
+          onAsk={onboarding.askNotifications}
+          onOpenSettings={onboarding.openSettings}
+        />
       )}
       <OnboardingFooter
         canGoBack={onboarding.step > 0}

@@ -1,12 +1,14 @@
 import { ScreenContainer } from '@/components/layout/screenContainer';
 import { GradientButton } from '@/components/ui/gradientButton';
 import { InfoBanner } from '@/components/ui/infoBanner';
+import { useNotificationPermission } from '@/shared/hooks/useNotificationPermission';
 import { useSettingsStore } from '@/stores/settings';
 
 import { AppearanceSection } from './components/appearanceSection';
 import { ExportSection } from './components/exportSection';
 import { FrequencySection } from './components/frequencySection';
 import { HealthIntegrationTile } from './components/healthIntegrationTile';
+import { NotificationPermissionBanner } from './components/notificationPermissionBanner';
 import { ProfileSection } from './components/profileSection';
 import { RemindersSection } from './components/remindersSection';
 import { EraseDataSection } from './components/eraseDataSection';
@@ -22,6 +24,9 @@ export function SettingsScreen() {
 function SettingsContent() {
   const settings = useSettings();
   const eraser = useEraseData();
+  const permission = useNotificationPermission();
+  const showPermission =
+    settings.wantsNotifications && permission.status !== null && permission.status !== 'granted';
 
   return (
     <ScreenContainer>
@@ -31,6 +36,12 @@ function SettingsContent() {
         title="Rotina e Alertas"
         description="Lembretes gentis no seu ritmo, combinados com a rotina que você e seu médico definiram."
       />
+      {showPermission && (
+        <NotificationPermissionBanner
+          blocked={permission.status === 'blocked'}
+          onRequest={() => void permission.request()}
+        />
+      )}
       <FrequencySection
         frequency={settings.frequency}
         onModeChange={settings.setMode}

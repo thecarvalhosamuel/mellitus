@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import type { ExportReminderKind, ExportReminderPlanItem } from '@/shared/utils/exportReminders';
 import type { ReminderPlanItem } from '@/shared/utils/reminders';
@@ -57,6 +57,20 @@ export async function configureNotifications(): Promise<void> {
     { identifier: ACTION_SNOOZE, buttonTitle: 'Adiar 10 min', options: { opensAppToForeground: false } },
     { identifier: ACTION_REGISTER, buttonTitle: 'Registrar', options: { opensAppToForeground: true } },
   ]);
+}
+
+/** `blocked`: o sistema não deixa mais perguntar; só pelos ajustes do aparelho. */
+export type NotificationPermission = 'granted' | 'undetermined' | 'blocked';
+
+export async function getNotificationPermission(): Promise<NotificationPermission> {
+  const current = await Notifications.getPermissionsAsync();
+  if (current.granted) return 'granted';
+  return current.canAskAgain ? 'undetermined' : 'blocked';
+}
+
+/** Abre a tela do app nos ajustes do aparelho (para ligar as notificações). */
+export function openAppSettings(): Promise<void> {
+  return Linking.openSettings();
 }
 
 /** Permissão já concedida? Com `ask`, pede ao usuário se ainda não decidiu. */

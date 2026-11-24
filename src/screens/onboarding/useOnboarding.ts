@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { ensurePermission } from '@/services/notifications';
+import { useNotificationPermission } from '@/shared/hooks/useNotificationPermission';
 import { syncReminders } from '@/shared/hooks/useReminderSync';
 import { useToast } from '@/shared/hooks/useToast';
 import { usePatternsStore } from '@/stores/patterns';
@@ -20,12 +20,17 @@ export function useOnboarding() {
   const [step, setStep] = useState(0);
   const [name, setName] = useState(() => useSettingsStore.getState().settings.profile?.name ?? '');
   const [patternId, setPatternId] = useState<string | undefined>(activeId);
-  const [notifications, setNotifications] = useState<'unknown' | 'granted' | 'denied'>('unknown');
+  const permission = useNotificationPermission();
+  const [asked, setAsked] = useState(false);
   const [finishing, setFinishing] = useState(false);
 
+  // Já permitido (ex.: depois de apagar os dados) → "permitidos"; negado ou bloqueado → caminho pelos ajustes.
+  const notifications: 'unknown' | 'granted' | 'denied' =
+    permission.status === 'granted' ? 'granted' : asked || permission.status === 'blocked' ? 'denied' : 'unknown';
+
   const askNotifications = async () => {
-    const granted = await ensurePermission(true).catch(() => false);
-    setNotifications(granted ? 'granted' : 'denied');
+    setAsked(true);
+    await permission.request();
   };
 
   const finish = async () => {
@@ -61,6 +66,7 @@ export function useOnboarding() {
     canContinue: step !== 1 || patternId !== undefined,
     notifications,
     askNotifications,
+    openSettings: () => void permission.openSettings().catch(() => undefined),
     finishing,
   };
 }

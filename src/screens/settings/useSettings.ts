@@ -87,6 +87,7 @@ export function useSettings() {
     setExportReminders,
     name,
     setName,
+    wantsNotifications,
     appearance: stored.appearance ?? 'system',
     setAppearance,
     dirty,
