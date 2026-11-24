@@ -14,6 +14,7 @@ import { useAppInit } from '@/shared/hooks/useAppInit';
 import { useReminderSync } from '@/shared/hooks/useReminderSync';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useToastState } from '@/shared/hooks/useToast';
+import { useUpdateCheck } from '@/shared/hooks/useUpdateCheck';
 import { ThemeProvider } from '@/shared/theme';
 import { fontAssets } from '@/shared/theme/typography';
 import { useSettingsStore } from '@/stores/settings';
@@ -46,6 +47,7 @@ function RootStack() {
   // Sem onboarding concluído (primeiro uso ou depois de apagar tudo), só o onboarding fica acessível.
   const onboarded = useSettingsStore((s) => Boolean(s.settings.onboarding?.completedAt));
   useReminderSync();
+  useUpdateCheck(onboarded);
 
   // Fundo da janela nativa na cor do canvas: é o que aparece atrás das barras do sistema (edge-to-edge).
   useEffect(() => {
@@ -66,6 +68,8 @@ function RootStack() {
             options={{ presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } }}
           />
           <Stack.Screen name="dev/index" />
+          {/* Voltar (gesto ou botão) é tratado pela própria tela como "Pular por hoje". */}
+          <Stack.Screen name="update/index" options={{ animation: 'slide_from_bottom', gestureEnabled: false }} />
         </Stack.Protected>
         <Stack.Protected guard={!onboarded}>
           <Stack.Screen name="onboarding/index" options={{ gestureEnabled: false }} />
