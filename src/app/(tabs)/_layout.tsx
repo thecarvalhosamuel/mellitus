@@ -9,7 +9,7 @@ import { useSettingsStore } from '@/stores/settings';
 // Abas (DESIGN.md §3.1): rótulo da aba em `title`, subtítulo do header em `headerTitle`.
 const TABS: { name: string; title: string; subtitle: string; icon: IconName }[] = [
   { name: 'index', title: 'Início', subtitle: 'Início', icon: 'ssid-chart' },
-  { name: 'history/index', title: 'Histórico', subtitle: 'Histórico E Registros', icon: 'calendar-month' },
+  { name: 'history', title: 'Histórico', subtitle: 'Histórico E Registros', icon: 'calendar-month' },
   { name: 'goals', title: 'Metas', subtitle: 'Metas E Padrões', icon: 'track-changes' },
   { name: 'settings/index', title: 'Ajustes', subtitle: 'Configurações E Frequência', icon: 'tune' },
 ];

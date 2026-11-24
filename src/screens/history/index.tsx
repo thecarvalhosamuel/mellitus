@@ -13,16 +13,24 @@ import { HistoryToolbar } from './components/historyToolbar';
 import { MonthPickerSheet } from './components/monthPickerSheet';
 import { ReadingDayGroup } from './components/readingDayGroup';
 import { useHistory } from './useHistory';
+import { useImportPicker } from './useImportPicker';
 import { useReportExport } from './useReportExport';
 
 export function HistoryScreen() {
   const history = useHistory();
   const report = useReportExport();
+  const importer = useImportPicker();
   const { colors } = useTheme();
 
   return (
     <ScreenContainer>
-      <DataInfoCard totalInMonth={history.totalInMonth} onExport={report.openMenu} exporting={report.exporting} />
+      <DataInfoCard
+        totalInMonth={history.totalInMonth}
+        onExport={report.openMenu}
+        exporting={report.exporting}
+        onImport={importer.pick}
+        importing={importer.picking}
+      />
       <HistoryToolbar
         monthLabel={history.monthLabel}
         onPressMonth={history.openMonthPicker}
