@@ -16,6 +16,22 @@ export const IMPORT_FIELDS: { field: ImportField; label: string; required?: bool
   { field: 'note', label: 'Nota' },
 ];
 
+/** Nome de coluna do modelo de importação (curto, em inglês) → campo. */
+export const IMPORT_HEADERS: Record<ImportField, string> = {
+  date: 'date',
+  time: 'time',
+  value: 'glucose',
+  context: 'context',
+  insulin: 'insulin',
+  correction: 'correction',
+  cycleDay: 'cycle',
+  note: 'note',
+};
+
+const HEADER_TO_FIELD = new Map(
+  (Object.entries(IMPORT_HEADERS) as [ImportField, string][]).map(([field, header]) => [header, field]),
+);
+
 const includes = (header: string, words: string[]) => words.some((w) => header.includes(w));
 
 // Ordem importa: "Dia do ciclo" antes de "Data/Dia", "Data/hora" antes de "Hora",
@@ -40,12 +56,21 @@ const RULES: { field: ImportField; test: (h: string) => boolean }[] = [
   },
 ];
 
-/** Mapeamento automático pelos cabeçalhos; cada campo usa a primeira coluna compatível. */
+/**
+ * Mapeamento automático pelos cabeçalhos: primeiro os nomes exatos do modelo
+ * (IMPORT_HEADERS), depois palavras comuns em pt-BR/inglês (planilhas antigas,
+ * glicosímetros, a exportação do app). Cada campo usa a primeira coluna compatível.
+ */
 export function detectColumns(headers: string[]): ColumnMapping {
   const mapping: ColumnMapping = {};
-  headers.forEach((raw, index) => {
-    const header = normalizeText(raw);
-    if (!header) return;
+  const normalized = headers.map(normalizeText);
+  normalized.forEach((header, index) => {
+    const field = HEADER_TO_FIELD.get(header);
+    if (field && mapping[field] === undefined) mapping[field] = index;
+  });
+  const taken = new Set(Object.values(mapping));
+  normalized.forEach((header, index) => {
+    if (!header || taken.has(index)) return;
     const rule = RULES.find((r) => r.test(header) && mapping[r.field] === undefined);
     if (rule) mapping[rule.field] = index;
   });

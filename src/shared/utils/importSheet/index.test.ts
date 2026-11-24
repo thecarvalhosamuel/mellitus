@@ -63,6 +63,12 @@ describe('detectColumns', () => {
     });
   });
 
+  it('reconhece os nomes curtos em inglês do modelo, em qualquer ordem e caixa', () => {
+    expect(detectColumns(['note', 'Glucose', 'DATE', 'time', 'context', 'insulin', 'correction', 'cycle'])).toEqual({
+      note: 0, value: 1, date: 2, time: 3, context: 4, insulin: 5, correction: 6, cycleDay: 7,
+    });
+  });
+
   it('reconhece cabeçalhos comuns de glicosímetros', () => {
     expect(detectColumns(['Data/Hora', 'Glicose (mg/dL)', 'Evento', 'Observações'])).toEqual({
       date: 0, value: 1, context: 2, note: 3,
