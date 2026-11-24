@@ -199,6 +199,31 @@ describe('readingsRepository', () => {
     expect(stats.tir.inRange).toBe(1);
   });
 
+  it('importa em lote pulando duplicatas do mesmo minuto e valor', async () => {
+    await readingsRepository.create(reading(104, 'fasting', new Date(2024, 9, 24, 7, 30, 42).toISOString()));
+    const inserted = await readingsRepository.createMany([
+      { ...reading(104, 'fasting', at(24, 7, 30)), source: 'import' },
+      { ...reading(105, 'fasting', at(24, 7, 30)), source: 'import' },
+      { ...reading(188, 'post-meal-2h', at(24, 20)), source: 'import' },
+    ]);
+    expect(inserted).toBe(2);
+    expect((await readingsRepository.listByMonth(2024, 10, { order: 'asc' })).map((r) => [r.value, r.source])).toEqual([
+      [105, 'import'],
+      [104, 'manual'],
+      [188, 'import'],
+    ]);
+    expect(await readingsRepository.listMinuteKeys(at(24, 0), at(25, 0))).toEqual(
+      expect.arrayContaining([{ minute: at(24, 7, 30).slice(0, 16), value: 104 }]),
+    );
+  });
+
+  it('importação em lote desfaz tudo se uma leitura falhar', async () => {
+    await expect(
+      readingsRepository.createMany([reading(104, 'fasting', at(24, 7)), { ...reading(104, 'fasting', at(25, 7)), value: 700 }]),
+    ).rejects.toThrow();
+    expect(await readingsRepository.listByMonth(2024, 10)).toEqual([]);
+  });
+
   it('o banco rejeita valores fora de 20–600', async () => {
     await expect(readingsRepository.create({ ...reading(104, 'fasting', at(1, 7)), value: 700 })).rejects.toThrow();
   });

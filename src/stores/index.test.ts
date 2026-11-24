@@ -72,6 +72,16 @@ describe('stores', () => {
     expect(useReadingsStore.getState().recent.map((r) => r.value)).toEqual([104]);
   });
 
+  it('importação classifica com o padrão ativo, marca a origem e reconhece duplicatas', async () => {
+    await useReadingsStore.getState().add(input(104));
+    const existing = await useReadingsStore.getState().findExistingKeys([input(104), input(150, 25)]);
+    expect([...existing]).toEqual([`${input(104).timestamp.slice(0, 16)}|104`]);
+
+    const inserted = await useReadingsStore.getState().importMany([input(104), input(190, 25)]);
+    expect(inserted).toBe(1);
+    expect(useReadingsStore.getState().recent[0]).toMatchObject({ value: 190, source: 'import', status: 'above-target' });
+  });
+
   it('leituras de hoje entram em "today" em ordem de horário; as de outros dias não', async () => {
     const now = new Date();
     const at = (h: number) => new Date(now.getFullYear(), now.getMonth(), now.getDate(), h).toISOString();

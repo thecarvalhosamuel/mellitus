@@ -27,6 +27,10 @@ type ReadingsState = {
   /** Reclassifica com o padrão da própria leitura (ou o ativo, se ele não existir mais). */
   update(id: string, input: ReadingInput): Promise<GlucoseReading>;
   remove(id: string): Promise<void>;
+  /** Chaves (minuto UTC + valor) que já existem no banco entre as leituras informadas. */
+  findExistingKeys(items: { timestamp: string; value: number }[]): Promise<Set<string>>;
+  /** Importação: classifica com o padrão ativo e grava em lote, sem duplicar. Retorna quantas entraram. */
+  importMany(inputs: ReadingInput[]): Promise<number>;
 };
 
 const byNewest = (a: GlucoseReading, b: GlucoseReading) => Date.parse(b.timestamp) - Date.parse(a.timestamp);
@@ -120,5 +124,25 @@ export const useReadingsStore = create<ReadingsState>()((set, get) => ({
       set(previous);
       throw error;
     }
+  },
+
+  async findExistingKeys(items) {
+    if (items.length === 0) return new Set();
+    const times = items.map((i) => Date.parse(i.timestamp));
+    const from = new Date(Math.min(...times)).toISOString();
+    const to = new Date(Math.max(...times) + 60_000).toISOString();
+    const rows = await readingsRepository.listMinuteKeys(from, to);
+    return new Set(rows.map((r) => `${r.minute}|${r.value}`));
+  },
+
+  async importMany(inputs) {
+    const pattern = requireActivePattern();
+    const readings = inputs.map((input) => buildReading(randomUUID(), { ...input, source: 'import' }, pattern));
+    const inserted = await readingsRepository.createMany(readings);
+    if (inserted > 0) {
+      refreshViews();
+      await get().load();
+    }
+    return inserted;
   },
 }));

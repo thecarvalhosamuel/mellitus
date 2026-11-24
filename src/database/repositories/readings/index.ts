@@ -1,7 +1,7 @@
 import type { CycleDay, GlucoseReading, GlucoseStatus, MealContext, ReadingSource } from '@/shared/types/reading';
 import { computeStats, type PeriodStats } from '@/shared/utils/stats';
 
-import { getDatabase, type SqlValue } from '../../client';
+import { getDatabase, runInTransaction, type SqlValue } from '../../client';
 
 type ReadingRow = {
   id: string;
@@ -105,6 +105,36 @@ export const readingsRepository = {
     await getDatabase().runAsync(
       `UPDATE readings SET ${MUTABLE.map((c) => `${c} = ?`).join(', ')}, updated_at = ? WHERE id = ?`,
       [...toParams(reading), new Date().toISOString(), reading.id],
+    );
+  },
+
+  /**
+   * Importação em lote numa transação. Pula a leitura se já existir outra no
+   * mesmo minuto com o mesmo valor (duplicata). Retorna quantas entraram.
+   */
+  async createMany(readings: GlucoseReading[]): Promise<number> {
+    const now = new Date().toISOString();
+    let inserted = 0;
+    await runInTransaction(async () => {
+      for (const reading of readings) {
+        const measuredAt = toUtc(reading.timestamp);
+        const { changes } = await getDatabase().runAsync(
+          `INSERT INTO readings (id, ${MUTABLE.join(', ')}, created_at, updated_at)
+           SELECT ?, ${MUTABLE.map(() => '?').join(', ')}, ?, ?
+           WHERE NOT EXISTS (SELECT 1 FROM readings WHERE substr(measured_at, 1, 16) = ? AND value = ?)`,
+          [reading.id, ...toParams(reading), now, now, measuredAt.slice(0, 16), reading.value],
+        );
+        inserted += changes;
+      }
+    });
+    return inserted;
+  },
+
+  /** Minuto (UTC, "YYYY-MM-DDTHH:MM") e valor das leituras de [from, to): detecção de duplicatas. */
+  async listMinuteKeys(from: string, to: string): Promise<{ minute: string; value: number }[]> {
+    return getDatabase().getAllAsync<{ minute: string; value: number }>(
+      'SELECT substr(measured_at, 1, 16) AS minute, value FROM readings WHERE measured_at >= ? AND measured_at < ?',
+      [toUtc(from), toUtc(to)],
     );
   },
 
