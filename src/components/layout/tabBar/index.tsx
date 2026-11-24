@@ -3,6 +3,7 @@ import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useReportTabBarTop } from '@/components/layout/tabBarFrame';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { layout } from '@/shared/theme/tokens';
 import { cn } from '@/shared/utils/cn';
@@ -14,6 +15,7 @@ import { cn } from '@/shared/utils/cn';
 export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
   const { scheme, colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const onTabBarLayout = useReportTabBarTop();
 
   return (
     <BlurView
@@ -21,7 +23,11 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
       tint={scheme === 'dark' ? 'dark' : 'light'}
       className="absolute inset-x-0 bottom-0 border-t border-tab-bar-border bg-tab-bar"
       style={{ paddingBottom: insets.bottom }}>
-      <View accessibilityRole="tablist" className="flex-row" style={{ height: layout.tabBarHeight }}>
+      <View
+        onLayout={onTabBarLayout}
+        accessibilityRole="tablist"
+        className="flex-row"
+        style={{ height: layout.tabBarHeight }}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           if ((options as { href?: unknown }).href === null) return null;
@@ -43,7 +49,11 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
               accessibilityLabel={label}
               className="flex-1 items-center justify-center gap-xs">
               {options.tabBarIcon?.({ focused, color, size: 24 })}
-              <Text className={cn('text-label-sm', focused ? 'font-bold text-primary' : 'font-semibold text-text-secondary')}>
+              <Text
+                className={cn(
+                  'text-label-sm',
+                  focused ? 'font-bold text-primary' : 'font-semibold text-text-secondary',
+                )}>
                 {label}
               </Text>
             </Pressable>

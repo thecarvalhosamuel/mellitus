@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router/tabs';
 
 import { AppHeader } from '@/components/layout/appHeader';
 import { TabBar } from '@/components/layout/tabBar';
+import { TabBarFrameProvider } from '@/components/layout/tabBarFrame';
 import { Icon, type IconName } from '@/components/ui/icon';
 import { useSettingsStore } from '@/stores/settings';
 
@@ -18,29 +19,31 @@ export default function TabsLayout() {
   const profileName = useSettingsStore((s) => s.settings.profile?.name);
 
   return (
-    <Tabs
-      tabBar={(props) => <TabBar {...props} />}
-      screenOptions={{
-        headerTransparent: true,
-        header: ({ options }) => (
-          <AppHeader
-            subtitle={typeof options.headerTitle === 'string' ? options.headerTitle : (options.title ?? '')}
-            profileName={profileName}
-            onPressProfile={() => router.navigate('/settings')}
+    <TabBarFrameProvider>
+      <Tabs
+        tabBar={(props) => <TabBar {...props} />}
+        screenOptions={{
+          headerTransparent: true,
+          header: ({ options }) => (
+            <AppHeader
+              subtitle={typeof options.headerTitle === 'string' ? options.headerTitle : (options.title ?? '')}
+              profileName={profileName}
+              onPressProfile={() => router.navigate('/settings')}
+            />
+          ),
+        }}>
+        {TABS.map((tab) => (
+          <Tabs.Screen
+            key={tab.name}
+            name={tab.name}
+            options={{
+              title: tab.title,
+              headerTitle: tab.subtitle,
+              tabBarIcon: ({ color, size }) => <Icon name={tab.icon} color={String(color)} size={size} />,
+            }}
           />
-        ),
-      }}>
-      {TABS.map((tab) => (
-        <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            title: tab.title,
-            headerTitle: tab.subtitle,
-            tabBarIcon: ({ color, size }) => <Icon name={tab.icon} color={String(color)} size={size} />,
-          }}
-        />
-      ))}
-    </Tabs>
+        ))}
+      </Tabs>
+    </TabBarFrameProvider>
   );
 }
