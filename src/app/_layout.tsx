@@ -1,9 +1,11 @@
 import '../global.css';
 
 import { useFonts } from 'expo-font';
+import { NavigationBar } from 'expo-navigation-bar';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useEffect } from 'react';
 
 import { AppErrorState } from '@/components/layout/appErrorState';
@@ -45,9 +47,16 @@ function RootStack() {
   const onboarded = useSettingsStore((s) => Boolean(s.settings.onboarding?.completedAt));
   useReminderSync();
 
+  // Fundo da janela nativa na cor do canvas: é o que aparece atrás das barras do sistema (edge-to-edge).
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(colors.bg).catch(() => undefined);
+  }, [colors.bg]);
+
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      {/* Ícones da barra de navegação do Android seguem o tema do app, não o do sistema. */}
+      <NavigationBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Protected guard={onboarded}>
           <Stack.Screen name="(tabs)" />

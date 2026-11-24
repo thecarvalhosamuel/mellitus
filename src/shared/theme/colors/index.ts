@@ -8,9 +8,9 @@ export type ColorScheme = 'light' | 'dark';
 
 export const lightColors = {
   bg: '#FAF8FF',
-  header: 'rgba(250,248,255,0.80)',
+  header: '#FAF8FF',
   headerBorder: 'transparent',
-  tabBar: 'rgba(250,248,255,0.85)',
+  tabBar: '#FAF8FF',
   tabBarBorder: 'transparent',
 
   card: '#FFFFFF',
@@ -101,9 +101,9 @@ export type ThemeColors = ColorShape<typeof lightColors>;
 
 export const darkColors: ThemeColors = {
   bg: '#051424',
-  header: 'rgba(5,20,36,0.85)',
+  header: '#051424',
   headerBorder: '#16273C',
-  tabBar: 'rgba(11,19,32,0.90)',
+  tabBar: '#051424',
   tabBarBorder: '#1E293B',
 
   card: '#0D1C2D',

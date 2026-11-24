@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,18 +8,17 @@ import { layout } from '@/shared/theme/tokens';
 import { cn } from '@/shared/utils/cn';
 
 /**
- * Tab bar fixa e translúcida (DESIGN.md §3.1). Ícone e rótulo vêm das options
+ * Tab bar fixa e sólida (DESIGN.md §3.1); se estende sob a barra de navegação do sistema
+ * na mesma cor do app. Ícone e rótulo vêm das options
  * de cada aba (`tabBarIcon`, `title`); ativa em primary + bold.
  */
 export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
-  const { scheme, colors } = useTheme();
+  const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const onTabBarLayout = useReportTabBarTop();
 
   return (
-    <BlurView
-      intensity={30}
-      tint={scheme === 'dark' ? 'dark' : 'light'}
+    <View
       className="absolute inset-x-0 bottom-0 border-t border-tab-bar-border bg-tab-bar"
       style={{ paddingBottom: insets.bottom }}>
       <View
@@ -60,6 +58,6 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
           );
         })}
       </View>
-    </BlurView>
+    </View>
   );
 }

@@ -18,7 +18,7 @@ type ScreenContainerProps = {
 
 const FLOATING_GAP = 12;
 
-/** Conteúdo rolável que respeita a safe area, o header e a tab bar translúcidos. */
+/** Conteúdo rolável que respeita a safe area, o header e a tab bar fixos. */
 export function ScreenContainer({
   children,
   bottomInset = 0,
@@ -53,6 +53,8 @@ export function ScreenContainer({
           {floating}
         </View>
       )}
+      {/* Sem header: faixa sólida sob a status bar para o conteúdo rolado não aparecer atrás dela. */}
+      {!chrome && <View pointerEvents="none" className="absolute inset-x-0 top-0 bg-bg" style={{ height: insets.top }} />}
     </View>
   );
 }

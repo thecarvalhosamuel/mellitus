@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,15 +16,13 @@ type AppHeaderProps = {
   onPressProfile: () => void;
 };
 
-/** Header fixo translúcido (DESIGN.md §3.1): logo + "Mellitus" + seção; avatar abre os Ajustes. */
+/** Header fixo e sólido (cobre a status bar e o conteúdo rolado) (DESIGN.md §3.1): logo + "Mellitus" + seção; avatar abre os Ajustes. */
 export function AppHeader({ subtitle, profileName, onPressProfile }: AppHeaderProps) {
   const { scheme } = useTheme();
   const insets = useSafeAreaInsets();
 
   return (
-    <BlurView
-      intensity={30}
-      tint={scheme === 'dark' ? 'dark' : 'light'}
+    <View
       className="border-b border-header-border bg-header"
       style={{ paddingTop: insets.top }}>
       <View className="flex-row items-center justify-between gap-sm px-margin" style={{ height: layout.headerHeight }}>
@@ -44,6 +41,6 @@ export function AppHeader({ subtitle, profileName, onPressProfile }: AppHeaderPr
           <Avatar name={profileName} />
         </Pressable>
       </View>
-    </BlurView>
+    </View>
   );
 }
