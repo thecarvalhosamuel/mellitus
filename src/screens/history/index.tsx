@@ -68,6 +68,7 @@ export function HistoryScreen() {
         monthLabel={history.monthLabel}
         onClose={report.closeMenu}
         onExportPdf={report.exportPdf}
+        onExportXlsx={report.exportXlsx}
       />
       <MonthPickerSheet
         visible={history.monthPickerOpen}

@@ -11,17 +11,22 @@ type ExportMenuSheetProps = {
   monthLabel: string;
   onClose: () => void;
   onExportPdf: () => void;
+  onExportXlsx: () => void;
 };
 
 type Option = { icon: IconName; title: string; description: string; onPress?: () => void };
 
 /** "Formatos oficiais": laudo PDF e planilha XLSX (DESIGN.md §5.2). */
-export function ExportMenuSheet({ visible, monthLabel, onClose, onExportPdf }: ExportMenuSheetProps) {
+export function ExportMenuSheet({ visible, monthLabel, onClose, onExportPdf, onExportXlsx }: ExportMenuSheetProps) {
   const { colors } = useTheme();
   const options: Option[] = [
     { icon: 'picture-as-pdf', title: 'PDF Médico (Laudo de Consulta)', description: 'Com curva, médias e TIR', onPress: onExportPdf },
-    // Planilha XLSX entra na etapa 13.
-    { icon: 'table-view', title: 'Planilha XLSX (Excel)', description: 'Tabela compatível com prontuários' },
+    {
+      icon: 'table-view',
+      title: 'Planilha XLSX (Excel)',
+      description: 'Tabela compatível com prontuários',
+      onPress: onExportXlsx,
+    },
   ];
 
   return (

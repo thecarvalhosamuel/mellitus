@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
 import { SharingUnavailableError, sharePdfReport } from '@/services/export/pdf';
+import { shareReadingsSpreadsheet } from '@/services/export/xlsx';
 import { useToast } from '@/shared/hooks/useToast';
 import { lightColors } from '@/shared/theme/colors';
 import { formatMonthYear } from '@/shared/utils/format';
 import { monthKeyToString } from '@/shared/utils/history';
 import { buildReportHtml } from '@/shared/utils/report';
+import { buildReadingRows } from '@/shared/utils/spreadsheet';
 import { useHistoryStore } from '@/stores/history';
 import { usePatternsStore } from '@/stores/patterns';
 import { useSettingsStore } from '@/stores/settings';
@@ -16,18 +18,28 @@ export function useReportExport() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  const exportPdf = async () => {
+  /** Fecha o menu, valida o mês e trata erros de compartilhamento. */
+  const run = async (emptyMessage: string, failMessage: string, task: () => Promise<void>) => {
     setMenuOpen(false);
-    const { month, readings } = useHistoryStore.getState();
-    const pattern = usePatternsStore.getState().active;
-    if (readings.length === 0) {
-      toast.error('Não há medições neste mês para o laudo.');
+    if (useHistoryStore.getState().readings.length === 0) {
+      toast.error(emptyMessage);
       return;
     }
-    if (!pattern) return;
-
     setExporting(true);
     try {
+      await task();
+    } catch (error) {
+      toast.error(error instanceof SharingUnavailableError ? 'Este aparelho não permite compartilhar arquivos.' : failMessage);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const exportPdf = () =>
+    run('Não há medições neste mês para o laudo.', 'Não foi possível gerar o laudo. Tente de novo.', async () => {
+      const { month, readings } = useHistoryStore.getState();
+      const pattern = usePatternsStore.getState().active;
+      if (!pattern) return;
       const html = buildReportHtml({
         patientName: useSettingsStore.getState().settings.profile?.name,
         periodLabel: formatMonthYear(month.year, month.month),
@@ -39,16 +51,17 @@ export function useReportExport() {
         colors: lightColors,
       });
       await sharePdfReport(html, `mellitus-laudo-${monthKeyToString(month)}.pdf`);
-    } catch (error) {
-      toast.error(
-        error instanceof SharingUnavailableError
-          ? 'Este aparelho não permite compartilhar arquivos.'
-          : 'Não foi possível gerar o laudo. Tente de novo.',
+    });
+
+  const exportXlsx = () =>
+    run('Não há medições neste mês para a planilha.', 'Não foi possível gerar a planilha. Tente de novo.', async () => {
+      const { month, readings } = useHistoryStore.getState();
+      await shareReadingsSpreadsheet(
+        buildReadingRows(readings),
+        `Leituras ${formatMonthYear(month.year, month.month)}`,
+        `mellitus-leituras-${monthKeyToString(month)}.xlsx`,
       );
-    } finally {
-      setExporting(false);
-    }
-  };
+    });
 
   return {
     menuOpen,
@@ -56,5 +69,6 @@ export function useReportExport() {
     closeMenu: () => setMenuOpen(false),
     exporting,
     exportPdf,
+    exportXlsx,
   };
 }
