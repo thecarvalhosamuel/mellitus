@@ -1,56 +1,83 @@
-# Welcome to your Expo app 👋
+# Mellitus
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Mellitus** é um aplicativo mobile de acompanhamento e registro glicêmico, desenvolvido para facilitar o controle diário dos níveis de glicose no sangue por meio de registros simples, organização de medições e visualização de histórico.
 
-## Get started
+O aplicativo foi concebido para oferecer uma experiência intuitiva, elegante e acessível, permitindo que usuários acompanhem seus dados glicêmicos de maneira organizada, sem depender de conexão com a internet.
 
-1. Install dependencies
+## 🎯 Objetivo
 
-   ```bash
-   npm install
-   ```
+Facilitar o acompanhamento glicêmico diário, centralizando medições, rotinas de monitoramento e relatórios em um único aplicativo.
 
-2. Start the app
+O Mellitus busca tornar o registro de glicose mais simples e consistente, ajudando os usuários a manter um histórico organizado que possa ser consultado e compartilhado com profissionais de saúde.
 
-   ```bash
-   npx expo start
-   ```
+## 👥 Público-alvo
 
-In the output, you'll find options to open the app in a
+O Mellitus é destinado principalmente a:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Pessoas com diabetes tipo 1 ou tipo 2 que precisam acompanhar regularmente seus níveis de glicose.
+- Pessoas com diabetes gestacional que necessitam registrar medições durante a gestação, conforme orientação profissional.
+- Pessoas com alterações glicêmicas que precisam monitorar seus níveis de glicose.
+- Pessoas que desejam manter um histórico organizado de suas medições glicêmicas.
+- Usuários que precisam compartilhar registros e relatórios com médicos e outros profissionais de saúde.
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## ✨ Funcionalidades principais
 
-## Get a fresh project
+- **Registro glicêmico:** inserção manual de valores de glicose, com data, horário, contexto e observações.
+- **Histórico de medições:** consulta, edição e organização dos registros.
+- **Plano de monitoramento:** configuração personalizada de frequência, horários e dias de medição.
+- **Notificações:** lembretes locais para auxiliar na rotina de monitoramento.
+- **Dashboard:** visualização de médias, indicadores e evolução dos registros.
+- **Relatórios:** geração de relatórios em PDF para consulta e compartilhamento.
+- **Exportação:** exportação de registros em CSV.
+- **Backup:** exportação e restauração dos dados em JSON.
 
-When you're ready, run:
+## 🛠️ Tecnologias
 
-```bash
-npm run reset-project
-```
+O aplicativo utiliza uma arquitetura mobile offline-first, priorizando desempenho, simplicidade e privacidade.
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+| Tecnologia | Finalidade |
+|---|---|
+| React Native | Desenvolvimento mobile |
+| Expo | Infraestrutura e ferramentas mobile |
+| TypeScript | Tipagem estática |
+| Expo Router | Navegação |
+| SQLite | Banco de dados local |
+| Drizzle ORM | Persistência e consultas |
+| Zod | Validação de dados |
+| Zustand | Gerenciamento de estado |
+| React Hook Form | Gerenciamento de formulários |
+| Expo Notifications | Notificações locais |
 
-### Other setup steps
+## 📱 Plataformas
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- Android
+- iOS
 
-## Learn more
+## 🔒 Privacidade e funcionamento
 
-To learn more about developing your project with Expo, look at the following resources:
+- Funcionamento offline, sem necessidade de conexão com a internet.
+- Armazenamento local dos registros no dispositivo.
+- Exportação e restauração dos dados pelo próprio usuário.
+- Sem necessidade de criar uma conta ou utilizar um servidor para o funcionamento inicial.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🧭 Visão de futuro
 
-## Join the community
+O Mellitus nasce como um aplicativo pessoal, com arquitetura preparada para evoluir para um produto comercial.
 
-Join our community of developers creating universal apps.
+Entre as possibilidades futuras estão:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Sincronização de dados em nuvem.
+- Suporte a múltiplos usuários e perfis.
+- Integração com dispositivos de monitoramento glicêmico.
+- Compartilhamento de informações com profissionais de saúde.
+- Relatórios e análises mais avançadas.
+
+## ⚕️ Aviso importante
+
+O Mellitus é uma ferramenta de registro, organização e acompanhamento de informações glicêmicas.
+
+O aplicativo não substitui consultas, diagnósticos ou orientações de profissionais de saúde, nem deve ser utilizado isoladamente para decisões de tratamento.
+
+---
+
+**Mellitus** — Seu histórico glicêmico, organizado em um só lugar.
