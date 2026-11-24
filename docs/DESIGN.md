@@ -1267,7 +1267,9 @@ No MVP, **todos os dados ficam somente no aparelho**. Não há backend, conta, l
 
 ```bash
 npx expo install expo-sqlite expo-file-system expo-crypto expo-print expo-sharing expo-document-picker expo-image-picker expo-notifications
-npm i zustand xlsx
+npm i zustand
+# SheetJS é distribuído pelo CDN oficial (o pacote "xlsx" do npm parou na 0.18.5, com falhas conhecidas)
+npm i https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz
 ```
 
 > Não usar AsyncStorage para dados clínicos: não tem consultas nem transações e fica lento com milhares de leituras. Todas as configurações também ficam no SQLite (tabela `settings`), para que um único arquivo de backup leve tudo.
