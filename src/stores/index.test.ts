@@ -5,7 +5,9 @@ import { settingsRepository } from '@/database/repositories/settings';
 import { runSeed } from '@/database/seed';
 import { createMemoryDatabase } from '@/database/testUtils';
 import { patternsRepository } from '@/database/repositories/patterns';
-import { deleteAttachmentFile } from '@/services/attachments';
+import { deleteAllAttachmentFiles, deleteAttachmentFile } from '@/services/attachments';
+import { cancelAllNotifications } from '@/services/notifications';
+import { eraseAllData } from '@/shared/hooks/useEraseData';
 import { DEFAULT_PATTERNS, GESTATIONAL_PATTERN_ID } from '@/shared/constants/defaultPatterns';
 
 import { useDashboardStore } from './dashboard';
@@ -18,7 +20,11 @@ jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn() }));
 jest.mock('@/services/attachments', () => ({
   importAttachment: jest.fn(async (_file: unknown, id: string) => `attachments/${id}.jpg`),
   deleteAttachmentFile: jest.fn(),
+  deleteAllAttachmentFiles: jest.fn(),
 }));
+jest.mock('@/services/notifications', () => ({ cancelAllNotifications: jest.fn(async () => undefined) }));
+jest.mock('@/services/export/share', () => ({ clearExportCache: jest.fn() }));
+jest.mock('@/shared/hooks/useReminderSync', () => ({ syncReminders: jest.fn(async () => undefined) }));
 jest.mock('expo-crypto', () => ({ 
   randomUUID: () => crypto.randomUUID(),
 }));
@@ -70,6 +76,23 @@ describe('stores', () => {
     useReadingsStore.setState({ recent: [] });
     await useReadingsStore.getState().load();
     expect(useReadingsStore.getState().recent.map((r) => r.value)).toEqual([104]);
+  });
+
+  it('apagar todos os dados limpa banco, arquivos e notificações e recarrega o estado de fábrica', async () => {
+    await useReadingsStore.getState().add(input(104));
+    await useSettingsStore.getState().update('profile', { name: 'Carlos' });
+    await usePatternsStore.getState().activate(GESTATIONAL_PATTERN_ID);
+    const generation = useSettingsStore.getState().generation;
+
+    await eraseAllData(new Date(2024, 10, 2));
+
+    expect(useReadingsStore.getState().recent).toEqual([]);
+    expect(useSettingsStore.getState().settings.profile).toBeUndefined();
+    expect(useSettingsStore.getState().generation).toBe(generation + 1);
+    expect(usePatternsStore.getState().active?.name).toBe('Diabetes Comum');
+    expect(await readingsRepository.listRecent(10)).toEqual([]);
+    expect(cancelAllNotifications).toHaveBeenCalled();
+    expect(deleteAllAttachmentFiles).toHaveBeenCalled();
   });
 
   it('importação classifica com o padrão ativo, marca a origem e reconhece duplicatas', async () => {

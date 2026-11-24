@@ -6,6 +6,8 @@ import type { SettingsKey, SettingsMap } from '@/shared/types/settings';
 type SettingsState = {
   settings: Partial<SettingsMap>;
   loaded: boolean;
+  /** Muda a cada carga do banco (ex.: depois de apagar os dados): telas com rascunho recomeçam. */
+  generation: number;
   load(): Promise<void>;
   /** Gravação otimista: atualiza já e reverte se o banco falhar (o erro sobe para a UI mostrar o toast). */
   update<K extends SettingsKey>(key: K, value: SettingsMap[K]): Promise<void>;
@@ -14,9 +16,11 @@ type SettingsState = {
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
   settings: {},
   loaded: false,
+  generation: 0,
 
   async load() {
-    set({ settings: await settingsRepository.getAll(), loaded: true });
+    const settings = await settingsRepository.getAll();
+    set({ settings, loaded: true, generation: get().generation + 1 });
   },
 
   async update(key, value) {
