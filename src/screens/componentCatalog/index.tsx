@@ -10,6 +10,7 @@ import { ButtonsSection } from './components/buttonsSection';
 import { DisplaySection } from './components/displaySection';
 import { FormSection } from './components/formSection';
 import { OverlaySection } from './components/overlaySection';
+import { UpdateSection } from './components/updateSection';
 
 const APPEARANCE_OPTIONS = [
   { value: 'system' as const, label: 'Automático' },
@@ -43,6 +44,7 @@ export function ComponentCatalogScreen() {
       <DisplaySection />
       <FormSection />
       <OverlaySection />
+      <UpdateSection />
     </ScrollView>
   );
 }
