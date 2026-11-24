@@ -8,6 +8,8 @@
     "scheme": "mellitus",
     "userInterfaceStyle": "automatic",
     "android": {
+      "package": "com.mellitus.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
