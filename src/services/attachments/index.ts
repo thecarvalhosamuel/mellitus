@@ -55,9 +55,11 @@ export async function pickImageAttachment(): Promise<PickedFile | null> {
 
 /** PDF ou imagem pelos arquivos do aparelho. `null` se cancelado. */
 export async function pickDocumentAttachment(): Promise<PickedFile | null> {
+  // Sem cópia: no Expo Go a cópia do seletor fica fora da área do app e não pode ser lida.
+  // importAttachment copia direto da URI original (content://) para a pasta de anexos.
   const result = await DocumentPicker.getDocumentAsync({
     type: ['application/pdf', 'image/jpeg', 'image/png'],
-    copyToCacheDirectory: true,
+    copyToCacheDirectory: false,
   });
   if (result.canceled || !result.assets[0]) return null;
   const asset = result.assets[0];
