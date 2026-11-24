@@ -1,16 +1,26 @@
 import { ScreenContainer } from '@/components/layout/screenContainer';
 import { GradientButton } from '@/components/ui/gradientButton';
 import { InfoBanner } from '@/components/ui/infoBanner';
+import { useSettingsStore } from '@/stores/settings';
 
 import { AppearanceSection } from './components/appearanceSection';
 import { ExportSection } from './components/exportSection';
 import { FrequencySection } from './components/frequencySection';
 import { HealthIntegrationTile } from './components/healthIntegrationTile';
 import { RemindersSection } from './components/remindersSection';
+import { EraseDataSection } from './components/eraseDataSection';
+import { useEraseData } from './useEraseData';
 import { useSettings } from './useSettings';
 
+/** Recomeça o rascunho quando as configurações são recarregadas do banco (ex.: depois de apagar tudo). */
 export function SettingsScreen() {
+  const generation = useSettingsStore((s) => s.generation);
+  return <SettingsContent key={generation} />;
+}
+
+function SettingsContent() {
   const settings = useSettings();
+  const eraser = useEraseData();
 
   return (
     <ScreenContainer>
@@ -46,6 +56,7 @@ export function SettingsScreen() {
         disabled={!settings.dirty}
         loading={settings.saving}
       />
+      <EraseDataSection erasing={eraser.erasing} onErase={eraser.confirm} />
     </ScreenContainer>
   );
 }
