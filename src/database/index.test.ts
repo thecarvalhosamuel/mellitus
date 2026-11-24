@@ -7,7 +7,9 @@ import { attachmentsRepository } from './repositories/attachments';
 import { patternsRepository } from './repositories/patterns';
 import { readingsRepository } from './repositories/readings';
 import { settingsRepository } from './repositories/settings';
+import { maintenanceRepository } from './repositories/maintenance';
 import { runSeed } from './seed';
+import { wipeDatabase } from './wipe';
 import { createMemoryDatabase } from './testUtils';
 
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn() }));
@@ -139,6 +141,24 @@ describe('patternsRepository', () => {
     expect(await attachmentsRepository.listByPattern('custom-1')).toHaveLength(1);
     await patternsRepository.remove('custom-1');
     expect(await attachmentsRepository.listByPattern('custom-1')).toEqual([]);
+  });
+});
+
+describe('wipeDatabase', () => {
+  it('apaga leituras, anexos, padrões próprios e perfil, e volta ao estado de fábrica', async () => {
+    await readingsRepository.create(reading(104, 'fasting', at(24, 7)));
+    await settingsRepository.set('profile', { name: 'Carlos' });
+    await patternsRepository.save({ ...DEFAULT_PATTERNS[0], id: 'custom-1', name: 'Meu padrão' }, { activate: true });
+    await attachmentsRepository.add({ id: 'a1', patternId: 'custom-1', fileUri: 'attachments/a1.jpg', mimeType: 'image/jpeg' });
+
+    await wipeDatabase(new Date(2024, 10, 2));
+
+    expect(await maintenanceRepository.countRows()).toMatchObject({ readings: 0, attachments: 0 });
+    expect((await patternsRepository.list()).map((p) => p.id).sort()).toEqual(DEFAULT_PATTERNS.map((p) => p.id).sort());
+    expect((await patternsRepository.getActive())?.id).toBe(STANDARD_PATTERN_ID);
+    const settings = await settingsRepository.getAll();
+    expect(settings.profile).toBeUndefined();
+    expect(settings.frequency?.cycleStart).toBe('2024-11-02');
   });
 });
 
