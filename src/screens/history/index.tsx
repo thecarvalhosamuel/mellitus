@@ -1,15 +1,15 @@
 import { ActivityIndicator } from 'react-native';
 
 import { ScreenContainer } from '@/components/layout/screenContainer';
-import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/ui/emptyState';
 import { FilterChips } from '@/components/ui/filterChips';
 import { useTheme } from '@/shared/hooks/useTheme';
 
 import { ClinicalReportFooter } from './components/clinicalReportFooter';
 import { DataInfoCard } from './components/dataInfoCard';
 import { ExportMenuSheet } from './components/exportMenuSheet';
+import { HistoryEmptyState } from './components/historyEmptyState';
 import { HistoryToolbar } from './components/historyToolbar';
+import { ImportMenuSheet } from './components/importMenuSheet';
 import { MonthPickerSheet } from './components/monthPickerSheet';
 import { ReadingDayGroup } from './components/readingDayGroup';
 import { useHistory } from './useHistory';
@@ -28,7 +28,7 @@ export function HistoryScreen() {
         totalInMonth={history.totalInMonth}
         onExport={report.openMenu}
         exporting={report.exporting}
-        onImport={importer.pick}
+        onImport={importer.openMenu}
         importing={importer.picking}
       />
       <HistoryToolbar
@@ -47,15 +47,11 @@ export function HistoryScreen() {
       {!history.loaded ? (
         <ActivityIndicator color={colors.primary} className="py-xl" />
       ) : history.groups.length === 0 ? (
-        <EmptyState
-          icon="content-paste-off"
-          title="Nenhum registro encontrado"
-          description="Não há medições correspondentes aos filtros selecionados neste mês."
-          action={
-            history.filter !== 'all' ? (
-              <Button label="Ver todos os registros" variant="secondary" fullWidth onPress={history.resetFilter} />
-            ) : undefined
-          }
+        <HistoryEmptyState
+          filtered={history.filter !== 'all'}
+          firstUse={!history.hasAnyReading}
+          onResetFilter={history.resetFilter}
+          onImport={importer.openMenu}
         />
       ) : (
         <>
@@ -77,6 +73,12 @@ export function HistoryScreen() {
         onClose={report.closeMenu}
         onExportPdf={report.exportPdf}
         onExportXlsx={report.exportXlsx}
+      />
+      <ImportMenuSheet
+        visible={importer.menuOpen}
+        onClose={importer.closeMenu}
+        onPickFile={importer.pick}
+        onDownloadTemplate={importer.downloadTemplate}
       />
       <MonthPickerSheet
         visible={history.monthPickerOpen}

@@ -57,6 +57,8 @@ export function useHistory() {
 
   return {
     loaded,
+    /** Nenhuma leitura em mês nenhum (primeiro uso). */
+    hasAnyReading: months.length > 0,
     monthLabel: formatMonthYear(month.year, month.month),
     monthKey: `${month.year}-${String(month.month).padStart(2, '0')}`,
     monthOptions,
