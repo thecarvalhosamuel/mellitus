@@ -19,7 +19,11 @@ export function ReadingForm({ existing }: ReadingFormProps) {
 
   return (
     <>
-      <ScrollView style={{ maxHeight: height * 0.6 }} contentContainerClassName="gap-lg pb-sm" keyboardShouldPersistTaps="handled">
+      {/* Encolhe junto com o sheet quando o teclado abre; o campo focado é rolado para a vista. */}
+      <ScrollView
+        style={{ maxHeight: height * 0.6, flexShrink: 1 }}
+        contentContainerClassName="gap-lg pb-sm"
+        keyboardShouldPersistTaps="handled">
         {existing && (
           <Text className="font-medium text-body-sm text-text-muted">
             Medido {formatReadingMoment(existing.timestamp).replace(/^(Hoje|Ontem)/, (d) => d.toLowerCase())}
