@@ -37,4 +37,5 @@ export const DEFAULT_SETTINGS: Omit<SettingsMap, 'frequency' | 'profile'> & {
     monthlyPdf: { enabled: false },
   },
   onboarding: {},
+  updates: {},
 };

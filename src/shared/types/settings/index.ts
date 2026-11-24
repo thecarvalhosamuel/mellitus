@@ -30,6 +30,8 @@ export type SettingsMap = {
   reminders: ReminderSettings;
   exportReminders: ExportReminders;
   onboarding: { completedAt?: string };
+  /** Aviso de atualização pulado: dia ("YYYY-MM-DD") e versão. O aviso volta em outro dia. */
+  updates: { skippedOn?: string; skippedVersion?: string };
 };
 
 export type SettingsKey = keyof SettingsMap;
