@@ -6,11 +6,13 @@ type SwitchProps = {
   value: boolean;
   onValueChange: (value: boolean) => void;
   accessibilityLabel: string;
+  /** Lido depois do rótulo (ex.: a descrição da linha). */
+  accessibilityHint?: string;
   disabled?: boolean;
 };
 
 /** Switch nativo com as cores do tema (DESIGN.md §4.4 e §10.4). */
-export function Switch({ value, onValueChange, accessibilityLabel, disabled = false }: SwitchProps) {
+export function Switch({ value, onValueChange, accessibilityLabel, accessibilityHint, disabled = false }: SwitchProps) {
   const { colors } = useTheme();
 
   return (
@@ -23,6 +25,7 @@ export function Switch({ value, onValueChange, accessibilityLabel, disabled = fa
       ios_backgroundColor={colors.switchOff}
       accessibilityRole="switch"
       accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ checked: value, disabled }}
     />
   );

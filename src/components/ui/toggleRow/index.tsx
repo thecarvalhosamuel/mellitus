@@ -28,7 +28,7 @@ export function ToggleRow({ title, description, icon, value, onValueChange, disa
         <Text className="font-semibold text-label-lg text-text-strong">{title}</Text>
         {description && <Text className="font-regular text-body-sm text-text-muted">{description}</Text>}
       </View>
-      <Switch value={value} onValueChange={onValueChange} accessibilityLabel={title} disabled={disabled} />
+      <Switch value={value} onValueChange={onValueChange} accessibilityLabel={title} accessibilityHint={description} disabled={disabled} />
     </Pressable>
   );
 }
