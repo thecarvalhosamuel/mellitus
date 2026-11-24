@@ -2,13 +2,15 @@ import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import type { ExportReminderKind, ExportReminderPlanItem } from '@/shared/utils/exportReminders';
 import type { ReminderPlanItem } from '@/shared/utils/reminders';
 
 // Notificações locais (sem push nem servidor). Este módulo só fala com o sistema;
 // o que agendar vem de buildReminderPlan.
 
 const CATEGORY = 'reading-reminder';
-const CHANNELS = { reminders: 'reminders', safety: 'safety', hypo: 'hypo-alerts' } as const;
+const CHANNELS = { reminders: 'reminders', safety: 'safety', hypo: 'hypo-alerts', reports: 'reports' } as const;
+const EXPORT_IDS: ExportReminderKind[] = ['export-weekly', 'export-monthly'];
 const PLAN_PREFIXES = ['moment-', 'gentle-', 'safety-'];
 const POST_MEAL_ID = 'post-meal-timer';
 
@@ -34,6 +36,10 @@ export async function configureNotifications(): Promise<void> {
       name: 'Lembretes de medição',
       importance: AndroidImportance.HIGH,
       vibrationPattern: [0, 200, 120, 200],
+    });
+    await Notifications.setNotificationChannelAsync(CHANNELS.reports, {
+      name: 'Lembretes de relatório',
+      importance: AndroidImportance.DEFAULT,
     });
     await Notifications.setNotificationChannelAsync(CHANNELS.safety, {
       name: 'Avisos de segurança',
@@ -123,13 +129,62 @@ export async function snoozeNotification(content: Notifications.NotificationCont
   });
 }
 
-export type ReminderResponse = { action: 'snooze' | 'register'; content: Notifications.NotificationContent };
+/** Substitui os lembretes de exportação (repetidos: semanal e mensal). */
+export async function replaceExportReminders(plan: ExportReminderPlanItem[]): Promise<void> {
+  await Promise.all(EXPORT_IDS.map((id) => Notifications.cancelScheduledNotificationAsync(id)));
+  for (const item of plan) {
+    const { repeat } = item;
+    await Notifications.scheduleNotificationAsync({
+      identifier: item.id,
+      content: { title: item.title, body: item.body, data: { kind: item.id } },
+      trigger:
+        repeat.every === 'week'
+          ? {
+              type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+              // expo-notifications conta de 1 (domingo) a 7 (sábado).
+              weekday: repeat.weekday + 1,
+              hour: repeat.hour,
+              minute: repeat.minute,
+              channelId: CHANNELS.reports,
+            }
+          : {
+              type: Notifications.SchedulableTriggerInputTypes.MONTHLY,
+              day: repeat.day,
+              hour: repeat.hour,
+              minute: repeat.minute,
+              channelId: CHANNELS.reports,
+            },
+    });
+  }
+}
 
-/** Toque na notificação ou num botão dela. */
+export type ReminderResponse = { id: string } & (
+  | { action: 'snooze' | 'register'; content: Notifications.NotificationContent }
+  | { action: 'export'; kind: ExportReminderKind }
+);
+
+function toResponse(event: Notifications.NotificationResponse): ReminderResponse {
+  const { request, date } = event.notification;
+  // Mesma entrega + mesmo botão: serve para não tratar o toque duas vezes.
+  const id = `${request.identifier}@${date}:${event.actionIdentifier}`;
+  const kind = request.content.data?.kind;
+  if (kind === 'export-weekly' || kind === 'export-monthly') return { id, action: 'export', kind };
+  return { id, action: event.actionIdentifier === ACTION_SNOOZE ? 'snooze' : 'register', content: request.content };
+}
+
+/** Toque na notificação ou num botão dela (com o app aberto ou em segundo plano). */
 export function onReminderResponse(listener: (response: ReminderResponse) => void) {
-  const subscription = Notifications.addNotificationResponseReceivedListener((event) => {
-    const action = event.actionIdentifier === ACTION_SNOOZE ? 'snooze' : 'register';
-    listener({ action, content: event.notification.request.content });
-  });
+  const subscription = Notifications.addNotificationResponseReceivedListener((event) => listener(toResponse(event)));
   return () => subscription.remove();
+}
+
+/**
+ * Toque que abriu o app do zero (o listener ainda não existia). Limpa em
+ * seguida para não repetir a ação na próxima abertura.
+ */
+export async function takeLaunchResponse(): Promise<ReminderResponse | null> {
+  const event = await Notifications.getLastNotificationResponseAsync();
+  if (!event) return null;
+  await Notifications.clearLastNotificationResponseAsync();
+  return toResponse(event);
 }
