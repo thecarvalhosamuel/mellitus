@@ -15,7 +15,7 @@ const OPTIONS = [
 export function AppearanceSection({ value, onChange }: AppearanceSectionProps) {
   return (
     <Card>
-      <StepHeader step={3} title="Aparência" />
+      <StepHeader step={4} title="Aparência" />
       <SegmentedControl accessibilityLabel="Aparência" options={OPTIONS} value={value} onChange={onChange} />
     </Card>
   );

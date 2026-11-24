@@ -5,7 +5,7 @@ import { DEFAULT_SETTINGS } from '@/shared/constants/defaultSettings';
 import { syncReminders } from '@/shared/hooks/useReminderSync';
 import { useToast } from '@/shared/hooks/useToast';
 import type { FrequencySchedule } from '@/shared/types/schedule';
-import type { Appearance, ReminderSettings } from '@/shared/types/settings';
+import type { Appearance, ExportReminders, ReminderSettings } from '@/shared/types/settings';
 import { toDateKey } from '@/shared/utils/date';
 import { cycleStartFor } from '@/shared/utils/frequency';
 import { useSettingsStore } from '@/stores/settings';
@@ -21,9 +21,15 @@ export function useSettings() {
     () => stored.frequency ?? { ...DEFAULT_SETTINGS.frequency, cycleStart: toDateKey(new Date()) },
   );
   const [reminders, setReminders] = useState<ReminderSettings>(() => stored.reminders ?? DEFAULT_SETTINGS.reminders);
+  const [exportReminders, setExportReminders] = useState<ExportReminders>(
+    () => stored.exportReminders ?? DEFAULT_SETTINGS.exportReminders,
+  );
   const [saving, setSaving] = useState(false);
 
-  const dirty = frequency !== stored.frequency || reminders !== stored.reminders;
+  const dirty =
+    frequency !== stored.frequency || reminders !== stored.reminders || exportReminders !== stored.exportReminders;
+  const wantsNotifications =
+    reminders.alarmsEnabled || exportReminders.weeklyXlsx.enabled || exportReminders.monthlyPdf.enabled;
 
   const setMode = (mode: FrequencySchedule['mode']) =>
     setFrequency((f) => ({
@@ -50,7 +56,8 @@ export function useSettings() {
       const store = useSettingsStore.getState();
       await store.update('frequency', frequency);
       await store.update('reminders', reminders);
-      if (reminders.alarmsEnabled && !(await ensurePermission(true))) {
+      await store.update('exportReminders', exportReminders);
+      if (wantsNotifications && !(await ensurePermission(true))) {
         toast.error('Para receber lembretes, permita as notificações do Mellitus nos ajustes do aparelho.', 'Preferências salvas');
       } else {
         await syncReminders();
@@ -70,6 +77,8 @@ export function useSettings() {
     setCyclePosition,
     reminders,
     setReminders,
+    exportReminders,
+    setExportReminders,
     appearance: stored.appearance ?? 'system',
     setAppearance,
     dirty,

@@ -3,12 +3,12 @@ import { GradientButton } from '@/components/ui/gradientButton';
 import { InfoBanner } from '@/components/ui/infoBanner';
 
 import { AppearanceSection } from './components/appearanceSection';
+import { ExportSection } from './components/exportSection';
 import { FrequencySection } from './components/frequencySection';
 import { HealthIntegrationTile } from './components/healthIntegrationTile';
 import { RemindersSection } from './components/remindersSection';
 import { useSettings } from './useSettings';
 
-// Lembretes de exportação (planilha semanal, laudo mensal) entram na etapa 15.
 export function SettingsScreen() {
   const settings = useSettings();
 
@@ -30,8 +30,10 @@ export function SettingsScreen() {
         onChange={settings.setReminders}
         showRestDay={settings.frequency.mode === 'alternating'}
       />
+      <ExportSection value={settings.exportReminders} onChange={settings.setExportReminders}>
+        <HealthIntegrationTile />
+      </ExportSection>
       <AppearanceSection value={settings.appearance} onChange={settings.setAppearance} />
-      <HealthIntegrationTile />
       <InfoBanner
         icon="verified"
         title="Salvo neste aparelho"
