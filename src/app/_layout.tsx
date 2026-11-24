@@ -9,6 +9,7 @@ import { Text, View } from 'react-native';
 
 import { Toast } from '@/components/ui/toast';
 import { useAppInit } from '@/shared/hooks/useAppInit';
+import { useReminderSync } from '@/shared/hooks/useReminderSync';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useToastState } from '@/shared/hooks/useToast';
 import { ThemeProvider } from '@/shared/theme';
@@ -40,6 +41,7 @@ export default function RootLayout() {
 function RootStack() {
   const { scheme, colors } = useTheme();
   const toast = useToastState();
+  useReminderSync();
 
   return (
     <>
