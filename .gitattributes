@@ -9,3 +9,5 @@
 *.ico binary
 *.ttf binary
 *.otf binary
+*.xlsx binary
+*.pdf binary
