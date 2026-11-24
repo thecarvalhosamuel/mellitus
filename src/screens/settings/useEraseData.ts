@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
@@ -13,9 +12,9 @@ export function useEraseData() {
   const erase = async () => {
     setErasing(true);
     try {
+      // Sem onboarding concluído, o layout raiz leva ao onboarding sozinho.
       await eraseAllData();
-      router.navigate('/');
-      toast.success('O app voltou ao início, como recém-instalado.', 'Dados apagados');
+      toast.success('Tudo foi apagado. Vamos configurar de novo?', 'Dados apagados');
     } catch {
       toast.error('Não foi possível apagar os dados. Nada foi alterado.');
     } finally {

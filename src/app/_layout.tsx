@@ -5,8 +5,8 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
 
+import { AppErrorState } from '@/components/layout/appErrorState';
 import { Toast } from '@/components/ui/toast';
 import { useAppInit } from '@/shared/hooks/useAppInit';
 import { useReminderSync } from '@/shared/hooks/useReminderSync';
@@ -41,19 +41,26 @@ export default function RootLayout() {
 function RootStack() {
   const { scheme, colors } = useTheme();
   const toast = useToastState();
+  // Sem onboarding concluído (primeiro uso ou depois de apagar tudo), só o onboarding fica acessível.
+  const onboarded = useSettingsStore((s) => Boolean(s.settings.onboarding?.completedAt));
   useReminderSync();
 
   return (
     <>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-        <Stack.Screen name="(tabs)" />
-        {/* O sheet anima a si mesmo; a rota só abre por cima, transparente. */}
-        <Stack.Screen
-          name="(modals)/newReading/index"
-          options={{ presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } }}
-        />
-        <Stack.Screen name="dev/index" />
+        <Stack.Protected guard={onboarded}>
+          <Stack.Screen name="(tabs)" />
+          {/* O sheet anima a si mesmo; a rota só abre por cima, transparente. */}
+          <Stack.Screen
+            name="(modals)/newReading/index"
+            options={{ presentation: 'transparentModal', animation: 'none', contentStyle: { backgroundColor: 'transparent' } }}
+          />
+          <Stack.Screen name="dev/index" />
+        </Stack.Protected>
+        <Stack.Protected guard={!onboarded}>
+          <Stack.Screen name="onboarding/index" options={{ gestureEnabled: false }} />
+        </Stack.Protected>
       </Stack>
       <Toast toast={toast.current} onDismiss={toast.hide} />
     </>
@@ -63,18 +70,28 @@ function RootStack() {
 // Falha ao abrir o banco: mensagem calma; o detalhe técnico só aparece em desenvolvimento.
 function InitError({ error }: { error: Error }) {
   return (
-    <View className="flex-1 items-center justify-center gap-sm bg-bg px-margin">
-      <Text className="text-center font-bold text-headline-sm text-text-strong">
-        Não conseguimos abrir seus dados
-      </Text>
-      <Text className="text-center font-regular text-body-md text-text-secondary">
-        Feche o app e abra de novo. Seus registros continuam guardados neste aparelho.
-      </Text>
-      {__DEV__ && (
-        <Text selectable className="mt-md font-regular text-body-sm text-status-danger-fg">
-          {error.message}
-        </Text>
-      )}
-    </View>
+    <AppErrorState
+      title="Não conseguimos abrir seus dados"
+      description="Feche o app e abra de novo. Seus registros continuam guardados neste aparelho."
+      error={error}
+    />
+  );
+}
+
+/** Erro inesperado numa tela (Expo Router): em vez da tela vermelha, mensagem calma e "Tentar de novo". */
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
+  const appearance = useSettingsStore((s) => s.settings.appearance);
+  useEffect(() => {
+    SplashScreen.hideAsync().catch(() => undefined);
+  }, []);
+  return (
+    <ThemeProvider appearance={appearance}>
+      <AppErrorState
+        title="Algo não saiu como esperado"
+        description="Seus registros continuam guardados neste aparelho. Tente de novo; se continuar, feche e abra o app."
+        error={error}
+        onRetry={() => void retry()}
+      />
+    </ThemeProvider>
   );
 }
