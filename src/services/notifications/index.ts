@@ -129,6 +129,12 @@ export async function snoozeNotification(content: Notifications.NotificationCont
   });
 }
 
+/** Cancela tudo o que está agendado e limpa as notificações já exibidas. */
+export async function cancelAllNotifications(): Promise<void> {
+  await Notifications.cancelAllScheduledNotificationsAsync();
+  await Notifications.dismissAllNotificationsAsync();
+}
+
 /** Substitui os lembretes de exportação (repetidos: semanal e mensal). */
 export async function replaceExportReminders(plan: ExportReminderPlanItem[]): Promise<void> {
   await Promise.all(EXPORT_IDS.map((id) => Notifications.cancelScheduledNotificationAsync(id)));

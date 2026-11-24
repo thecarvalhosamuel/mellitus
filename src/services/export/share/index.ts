@@ -1,4 +1,4 @@
-import { File, Paths } from 'expo-file-system';
+import { Directory, File, Paths } from 'expo-file-system';
 import { isAvailableAsync, shareAsync } from 'expo-sharing';
 
 // Arquivos gerados no aparelho e compartilhados manualmente (WhatsApp, e-mail…).
@@ -21,6 +21,19 @@ export function cacheFile(fileName: string): File {
   const file = new File(Paths.cache, fileName);
   if (file.exists) file.delete();
   return file;
+}
+
+/** Apaga sobras de exportações no cache (arquivos "mellitus-…"), se alguma ficou. */
+export function clearExportCache(): void {
+  for (const entry of new Directory(Paths.cache).list()) {
+    if (entry instanceof File && entry.name.startsWith('mellitus-')) {
+      try {
+        entry.delete();
+      } catch {
+        // Melhor esforço.
+      }
+    }
+  }
 }
 
 /** Abre a folha de compartilhamento e apaga os arquivos temporários no fim. */

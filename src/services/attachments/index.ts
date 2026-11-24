@@ -39,6 +39,12 @@ export function deleteAttachmentFile(relativePath: string): void {
   if (file.exists) file.delete();
 }
 
+/** Apaga a pasta inteira de anexos ("Apagar todos os dados"). */
+export function deleteAllAttachmentFiles(): void {
+  const folder = new Directory(Paths.document, FOLDER);
+  if (folder.exists) folder.delete();
+}
+
 /** Foto da receita ou do laudo pela galeria. `null` se cancelado. */
 export async function pickImageAttachment(): Promise<PickedFile | null> {
   const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
