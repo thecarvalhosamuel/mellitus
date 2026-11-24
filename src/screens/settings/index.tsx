@@ -7,6 +7,7 @@ import { AppearanceSection } from './components/appearanceSection';
 import { ExportSection } from './components/exportSection';
 import { FrequencySection } from './components/frequencySection';
 import { HealthIntegrationTile } from './components/healthIntegrationTile';
+import { ProfileSection } from './components/profileSection';
 import { RemindersSection } from './components/remindersSection';
 import { EraseDataSection } from './components/eraseDataSection';
 import { useEraseData } from './useEraseData';
@@ -24,6 +25,7 @@ function SettingsContent() {
 
   return (
     <ScreenContainer>
+      <ProfileSection name={settings.name} onNameChange={settings.setName} />
       <InfoBanner
         icon="notifications-active"
         title="Rotina e Alertas"

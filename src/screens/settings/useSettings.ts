@@ -24,10 +24,15 @@ export function useSettings() {
   const [exportReminders, setExportReminders] = useState<ExportReminders>(
     () => stored.exportReminders ?? DEFAULT_SETTINGS.exportReminders,
   );
+  const [name, setName] = useState(() => stored.profile?.name ?? '');
   const [saving, setSaving] = useState(false);
 
+  const nameChanged = name.trim() !== (stored.profile?.name ?? '');
   const dirty =
-    frequency !== stored.frequency || reminders !== stored.reminders || exportReminders !== stored.exportReminders;
+    nameChanged ||
+    frequency !== stored.frequency ||
+    reminders !== stored.reminders ||
+    exportReminders !== stored.exportReminders;
   const wantsNotifications =
     reminders.alarmsEnabled || exportReminders.weeklyXlsx.enabled || exportReminders.monthlyPdf.enabled;
 
@@ -54,6 +59,7 @@ export function useSettings() {
     setSaving(true);
     try {
       const store = useSettingsStore.getState();
+      if (nameChanged) await store.update('profile', { name: name.trim() });
       await store.update('frequency', frequency);
       await store.update('reminders', reminders);
       await store.update('exportReminders', exportReminders);
@@ -79,6 +85,8 @@ export function useSettings() {
     setReminders,
     exportReminders,
     setExportReminders,
+    name,
+    setName,
     appearance: stored.appearance ?? 'system',
     setAppearance,
     dirty,
